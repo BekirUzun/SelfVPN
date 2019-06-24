@@ -6,10 +6,14 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./settings.component.scss']
 })
 export class SettingsComponent implements OnInit {
+  key: string;
 
   constructor() { }
 
   ngOnInit() {
   }
 
+  save() {
+    console.log(this.key);
+  }
 }

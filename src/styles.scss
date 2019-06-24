@@ -6,3 +6,27 @@ html, body {
   background-color: #2a2a2a;
   height: 100%;
 }
+
+:focus {
+  outline: none;
+}
+
+.settings-window {
+  nb-card-header {
+    padding: .5rem .75rem;
+
+    .buttons {
+      width: unset !important;
+    }
+    button:nth-child(1), button:nth-child(2){
+      display: none;
+    }
+    [nbButton].appearance-ghost.size-medium{
+      padding: .5rem .5rem;
+    }
+  }
+
+  nb-card-body {
+    padding: .5rem .75rem;
+  }
+}

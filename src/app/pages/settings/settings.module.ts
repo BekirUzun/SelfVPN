@@ -1,7 +1,8 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SettingsComponent } from './settings.component';
-import { NbButtonModule } from '@nebular/theme';
+import { NbButtonModule, NbInputModule } from '@nebular/theme';
+import { FormsModule } from '@angular/forms';
 
 @NgModule({
   declarations: [
@@ -9,7 +10,9 @@ import { NbButtonModule } from '@nebular/theme';
   ],
   imports: [
     CommonModule,
-    NbButtonModule
+    NbButtonModule,
+    NbInputModule,
+    FormsModule
   ],
   exports: [
     SettingsComponent
