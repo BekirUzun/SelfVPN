@@ -25,6 +25,7 @@
               "src/favicon.512x512.png"
             ],
             "styles": [
+              "./node_modules/@nebular/theme/styles/prebuilt/dark.css",
               "src/styles.scss"
             ],
             "scripts": []

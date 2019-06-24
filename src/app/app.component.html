@@ -1,4 +1,14 @@
+<nb-layout>
+    <nb-layout-header fixed>
+        <app-nav></app-nav>
+    </nb-layout-header>
 
-<app-nav></app-nav>
-
-<router-outlet></router-outlet>
+    <nb-layout-column>
+      <router-outlet></router-outlet>
+    </nb-layout-column>
+  
+    <nb-layout-footer fixed>
+    <!-- Insert footer here -->
+    </nb-layout-footer>
+  
+  </nb-layout>
