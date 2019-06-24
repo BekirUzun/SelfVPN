@@ -18,9 +18,9 @@ import { WebviewDirective } from './directives/webview.directive';
 
 import { AppComponent } from './app.component';
 
-import { NbSidebarModule, NbLayoutModule, NbButtonModule } from '@nebular/theme';
 import { HomeModule } from './pages/home/home.module';
 import { SettingsModule } from './pages/settings/settings.module';
+import { NavComponent } from './components/nav/nav.component';
 
 // AoT requires an exported function for factories
 export function HttpLoaderFactory(http: HttpClient) {
@@ -30,7 +30,8 @@ export function HttpLoaderFactory(http: HttpClient) {
 @NgModule({
   declarations: [
     AppComponent,
-    WebviewDirective
+    WebviewDirective,
+    NavComponent
   ],
   imports: [
     BrowserModule,
@@ -45,7 +46,7 @@ export function HttpLoaderFactory(http: HttpClient) {
         useFactory: (HttpLoaderFactory),
         deps: [HttpClient]
       }
-    })
+    }),
   ],
   providers: [ElectronService],
   bootstrap: [AppComponent]
