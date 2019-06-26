@@ -12,7 +12,6 @@ export class NavComponent {
   constructor(private windowService: NbWindowService) {}
 
   openSettings() {
-    console.log('openSettings clicked');
     this.windowRef = this.windowService.open(SettingsComponent, {
       title: `Settings`,
       closeOnBackdropClick: true,
@@ -21,5 +20,7 @@ export class NavComponent {
     });
   }
 
-
+  closeApp() {
+    window.close();
+  }
 }

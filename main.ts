@@ -24,6 +24,7 @@ function createWindow() {
     },
     autoHideMenuBar: true,
     darkTheme: true,
+    frame: false
   });
 
   if (serve) {

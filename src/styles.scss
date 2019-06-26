@@ -1,3 +1,5 @@
+$header-height: 3rem;
+
 /* You can add global styles to this file, and also import other style files */
 html, body {
   margin: 0;
@@ -8,8 +10,29 @@ html, body {
 }
 
 :focus {
-  outline: none;
+  outline: 0;
 }
+
+#header {
+  -webkit-app-region: drag;
+
+  nav {
+    height: $header-height;
+    padding: .75rem 1rem;
+  }
+
+  a {
+    -webkit-app-region: no-drag;
+  }
+}
+
+.nb-theme-dark nb-layout .layout nb-layout-header ~ .layout-container {
+  min-height: calc(100vh - #{$header-height});
+}
+.nb-theme-dark nb-layout .layout nb-layout-header.fixed ~ .layout-container {
+  padding-top: $header-height;
+}
+
 
 .settings-window {
   nb-card-header {
@@ -30,3 +53,4 @@ html, body {
     padding: .5rem .75rem;
   }
 }
+
