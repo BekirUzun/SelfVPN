@@ -16,12 +16,18 @@ html, body {
 #header {
   -webkit-app-region: drag;
 
+  
+
   nav {
     height: $header-height;
-    padding: .75rem 1rem;
+    padding: .75rem 0 .75rem 1rem;
+    
+    app-nav {
+      width: 100%;
+    }
   }
 
-  a {
+  .actions, a {
     -webkit-app-region: no-drag;
   }
 }
@@ -32,7 +38,6 @@ html, body {
 .nb-theme-dark nb-layout .layout nb-layout-header.fixed ~ .layout-container {
   padding-top: $header-height;
 }
-
 
 .settings-window {
   nb-card-header {
@@ -54,3 +59,7 @@ html, body {
   }
 }
 
+[nbButton]:focus {
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
