@@ -55,11 +55,24 @@ html, body {
   }
 
   nb-card-body {
-    padding: .5rem .75rem;
+    padding: .5rem 0;
   }
 }
 
 [nbButton]:focus {
   border-color: transparent !important;
   box-shadow: none !important;
+}
+
+.nb-theme-dark nb-spinner {
+  background-color: rgba(0,0,0,0.3);
+  position: fixed;
+
+  .spin-circle {
+    border-right-color: #81a1ff;
+  }
+}
+
+.nb-spinner-container > :not(nb-spinner) {
+  filter: blur(1px);
 }

@@ -23,9 +23,11 @@ import { SettingsModule } from './pages/settings/settings.module';
 import { NavComponent } from './components/nav/nav.component';
 
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { NbThemeModule, NbLayoutModule, NbWindowModule } from '@nebular/theme';
+import { NbThemeModule, NbLayoutModule, NbWindowModule, NbSpinnerModule } from '@nebular/theme';
 import { NbEvaIconsModule } from '@nebular/eva-icons';
 import { NavModule } from './components/nav/nav.module';
+
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 // AoT requires an exported function for factories
 export function HttpLoaderFactory(http: HttpClient) {
@@ -52,6 +54,7 @@ export function HttpLoaderFactory(http: HttpClient) {
         deps: [HttpClient]
       }
     }),
+    NgbModule,
     BrowserAnimationsModule,
     NbThemeModule.forRoot({ name: 'dark' }),
     NbLayoutModule,
@@ -59,6 +62,7 @@ export function HttpLoaderFactory(http: HttpClient) {
     NbWindowModule.forRoot({
       closeOnBackdropClick: true
     }),
+    NbSpinnerModule,
   ],
   providers: [ElectronService],
   bootstrap: [AppComponent]

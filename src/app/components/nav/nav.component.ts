@@ -16,7 +16,12 @@ export class NavComponent {
       title: `Settings`,
       closeOnBackdropClick: true,
       closeOnEsc: true,
-      windowClass: 'settings-window'
+      windowClass: 'settings-window',
+    });
+
+    this.windowRef.onClose.subscribe(() => {
+      this.windowRef.componentRef.destroy();
+      this.windowRef = undefined;
     });
   }
 

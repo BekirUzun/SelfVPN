@@ -1,9 +1,23 @@
-.setting-input{
-    margin-bottom: 1rem;
-}
 app-settings input {
     border: white !important;
+}
 
+
+.form-group.row {
+    margin-left: 0;
+    margin-right: 0;
+
+}
+.actions {
+    margin-bottom: .5rem;
+    
+    > .left {
+        padding-right: 8px;
+    }
+
+    > .right {
+        padding-left: 8px;
+    }
 }
 
 

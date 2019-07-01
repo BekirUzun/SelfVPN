@@ -1,9 +1,9 @@
-<nb-layout>
+<nb-layout [nbSpinner]="isLoading()" >
     <nb-layout-header fixed id="header">
         <app-nav></app-nav>
     </nb-layout-header>
 
-    <nb-layout-column>
+    <nb-layout-column >
       <router-outlet></router-outlet>
     </nb-layout-column>
   
@@ -11,4 +11,4 @@
     <!-- Insert footer here -->
     </nb-layout-footer>
   
-  </nb-layout>
+</nb-layout>

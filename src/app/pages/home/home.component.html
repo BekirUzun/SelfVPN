@@ -1,4 +1,16 @@
 <p>
-  Home works
+  Key: {{ getData() }}, Droplet IP: {{ getDropletIP() }}
 </p>
-<button nbButton>Perfection</button> 
+
+<div class="row">
+  <div class="col">
+    <button nbButton [disabled]="isDeploying" (click)="dropletAction()"> {{ isDropletRunning ? 'Destroy Droplet' : 'Create Droplet' }}</button>
+  </div>
+</div>
+<br>
+<div class="row">
+  <div class="col">
+    <button nbButton (click)="connect()">Connect</button>
+  </div>
+</div>
+
