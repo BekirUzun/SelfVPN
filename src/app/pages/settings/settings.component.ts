@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { config, ConfigKeys } from '../../shared/config';
 import { state } from '../../shared/state';
+import { VpsService } from '../../providers/vps-service/vps.service';
+import { errors } from '../../shared/errors';
 
 @Component({
   selector: 'app-settings',
@@ -14,7 +16,7 @@ export class SettingsComponent implements OnInit {
   psk: string;
   connected = false;
 
-  constructor() { }
+  constructor(public vpsService: VpsService) { }
 
   ngOnInit() {
    this.loadConfig();
@@ -22,13 +24,23 @@ export class SettingsComponent implements OnInit {
 
   save() {
     state.isHomeLoading = true;
-    config.set(ConfigKeys.apiKey, this.apiKey);
+
     config.set(ConfigKeys.username, this.username);
     config.set(ConfigKeys.password, this.password);
     config.set(ConfigKeys.psk, this.psk);
-    setTimeout(() => {
+    this.vpsService.updateApiKey(this.apiKey).then(() => {
+      config.set(ConfigKeys.apiKey, this.apiKey);
+      alert('Settings saved!'); // TODO: better alert management
+    }).catch(err => {
+      if (err.message) {
+        alert(err.message);
+        return;
+      }
+      alert('Api key is invalid');
+    }).finally(() => {
       state.isHomeLoading = false;
-    }, 2000);
+    });
+
   }
 
   loadConfig() {

@@ -1,10 +1,10 @@
-<p>
-  Key: {{ getData() }}, Droplet IP: {{ getDropletIP() }}
+<p *ngIf="isDropletRunning()">
+  Droplet IP: {{ getDropletIP() }}, Region: {{ getDropletRegion() }}
 </p>
 
 <div class="row">
   <div class="col">
-    <button nbButton [disabled]="isDeploying" (click)="dropletAction()"> {{ isDropletRunning ? 'Destroy Droplet' : 'Create Droplet' }}</button>
+    <button nbButton [disabled]="isBooting" (click)="dropletAction()"> {{ isDropletRunning() ? 'Destroy Droplet' : 'Create Droplet' }}</button>
   </div>
 </div>
 <br>
