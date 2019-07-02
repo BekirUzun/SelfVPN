@@ -12,18 +12,46 @@ const DigitalOcean = require('do-wrapper').default;
   styleUrls: ['./home.component.scss']
 })
 export class HomeComponent implements OnInit {
+// tslint:disable:max-line-length
 
+  vpnConnected = false;
   isBooting = false;
   currentKey: string;
 
-  constructor(public vpsService: VpsService, public events: Events) {
-    // this.currentKey = config.get(ConfigKeys.apiKey);
-    // this.api = new DigitalOcean(this.currentKey);
-  }
+  constructor(public vpsService: VpsService, public events: Events) { }
 
   ngOnInit() {
-    this.vpsService.checkDroplets().finally(() => {
-      state.isHomeLoading = false;
+    this.vpsService.checkDroplets().then(() => {
+      // TODO: make droplet and connection checking parallel
+      let ps = new powershell({
+        executionPolicy: 'Bypass',
+        noProfile: true
+      });
+
+      ps.addCommand(`
+$vpnName = "SelfVPN";
+
+Try
+{
+  $vpn = Get-VpnConnection -Name $vpnName -ErrorAction Stop;
+  Write-Host $vpn.ConnectionStatus;
+}
+Catch
+{
+  Write-Host "Disconnected";
+}
+`);
+      ps.invoke().then((output: string) => {
+        if (output.includes('Connected')) {
+          this.vpnConnected = true;
+        }
+      })
+      .catch(err => {
+        console.error('err', err);
+      }).finally(() => {
+        ps.dispose();
+        state.isHomeLoading = false;
+      });
     });
   }
 
@@ -40,6 +68,12 @@ export class HomeComponent implements OnInit {
   }
 
   dropletAction() {
+
+    // TODO: better confirmation UI
+    let msg = this.isDropletRunning() ? 'Are you sure to destroy vpn droplet?' : 'Are you sure to create new droplet?';
+    let ok = confirm(msg);
+    if (!ok)
+      return;
 
     // TODO: handle config updates
 
@@ -67,36 +101,70 @@ export class HomeComponent implements OnInit {
   }
 
   connect() {
-    console.log('connect clicked');
 
-    let ps = new powershell({
-      executionPolicy: 'Bypass',
-      noProfile: true
-    });
+    if (this.vpnConnected) {
 
-    // Load the gun
-    ps.addCommand(
-`param (
-  [string]$Server = ""
-)
+    } else {
+      let ps = new powershell({
+        executionPolicy: 'Bypass',
+        noProfile: true
+      });
 
-write-output $Server`).then(() => {
-      // ps.addParameters( [
-      //   { server: '252.51.23.66' }
-      // ]);
-    });
-    ps.addParameters( [
-      { Server: '252.51.23.66' }
-    ]);
+      // Load the gun
+      ps.addCommand(`
+$vpnName = "SelfVPN";
+$vpnServer = "${this.vpsService.getDropletIP()}";
+$vpnUsername = "vpnadmin"
+$vpnPassword = "VpULLV8oD86L6dr9u7DjXaigQu5ShWcO";
+$vpnPsk = "8q31ADWSFfMhtW3V35JmC7OUJRMIn6Dr";
 
-    // Pull the Trigger
-    ps.invoke().then(output => {
-      console.log('output', output);
-    })
-    .catch(err => {
-      console.error('err', err);
-      ps.dispose();
-    });
+Try
+{
+  $vpnTest = Get-VpnConnection -Name $vpnName -ErrorAction Stop;
+  Write-Host "- vpn found";
+}
+Catch
+{
+  Write-Host "- no vpn found, adding...";
+  Add-VpnConnection -Name $vpnName -ServerAddress $vpnServer -L2tpPsk $vpnPsk -TunnelType L2tp -EncryptionLevel Required -AuthenticationMethod Chap,MSChapv2 -Force -RememberCredential -PassThru | Out-Null;
+}
+
+$vpn = Get-VpnConnection -Name $vpnName;
+if($vpn.ServerAddress -ne $vpnServer){
+  Write-Host "- changing vpn server adress...";
+  Set-VpnConnection -Name $vpnName -ServerAddress $vpnServer -PassThru | Out-Null;
+} else {
+  Write-Host "- server adress is correct";
+}
+
+if($vpn.ConnectionStatus -eq "Disconnected"){
+  Write-Host "- starting rasdial...";
+  rasdial $vpnName $vpnUsername $vpnPassword;
+} else {
+  Write-Host "- vpn already connected. exiting...";
+}
+`); // DO NOT REMOVE LAST LINE BREAK!
+
+      ps.streams.stdout.on('data', (data: string) => {
+        if (!data || data.includes('EOI') || !data.trim())
+          return;
+
+        console.log(data);
+      });
+
+      // Pull the Trigger
+      ps.invoke().then((output: string) => {
+        console.log('powershell closed, output: ', output);
+        if (output.includes('connected')) {
+          this.vpnConnected = true;
+        }
+      })
+      .catch(err => {
+        console.error('err', err);
+      }).finally(() => {
+        ps.dispose();
+      });
+    }
   }
 
 }

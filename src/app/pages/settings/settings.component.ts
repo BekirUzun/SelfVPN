@@ -14,6 +14,7 @@ export class SettingsComponent implements OnInit {
   username: string;
   password: string;
   psk: string;
+  sshId: string;
   connected = false;
 
   constructor(public vpsService: VpsService) { }
@@ -28,6 +29,8 @@ export class SettingsComponent implements OnInit {
     config.set(ConfigKeys.username, this.username);
     config.set(ConfigKeys.password, this.password);
     config.set(ConfigKeys.psk, this.psk);
+    config.set(ConfigKeys.sshId, this.sshId);
+
     this.vpsService.updateApiKey(this.apiKey).then(() => {
       config.set(ConfigKeys.apiKey, this.apiKey);
       alert('Settings saved!'); // TODO: better alert management
@@ -48,6 +51,7 @@ export class SettingsComponent implements OnInit {
     this.username = config.get(ConfigKeys.username);
     this.password = config.get(ConfigKeys.password);
     this.psk = config.get(ConfigKeys.psk);
+    this.sshId = config.get(ConfigKeys.sshId);
   }
 
   regenerateKeys() {

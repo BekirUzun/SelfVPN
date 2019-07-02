@@ -9,6 +9,7 @@ export enum ConfigKeys {
     username = 'username',
     password = 'password',
     psk = 'psk',
+    sshId = 'sshId',
     windowPosition = 'windowPosition'
 }
 

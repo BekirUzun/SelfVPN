@@ -10,7 +10,7 @@
 <br>
 <div class="row">
   <div class="col">
-    <button nbButton (click)="connect()">Connect</button>
+    <button nbButton [disabled]="!isDropletRunning()"  (click)="connect()">{{ vpnConnected ? 'Disconnect' : 'Connect' }}</button>
   </div>
 </div>
 

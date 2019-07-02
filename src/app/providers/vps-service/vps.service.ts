@@ -42,6 +42,10 @@ runcmd:
   }
 
   createDroplet(): Promise<any> {
+    let newDroplet = this.dropletTemplate;
+    if (config.get(ConfigKeys.sshId))
+      newDroplet.ssh_keys.push(config.get(ConfigKeys.sshId));
+
     return this.api.dropletsCreate(this.dropletTemplate).then(resp => {
       this.droplet = resp.body.droplet;
       this._isDropletRunning = true;
@@ -80,13 +84,13 @@ runcmd:
     return this._isDropletRunning;
   }
 
-  getDropletIP() {
+  getDropletIP(): string {
     if (this.droplet && this.droplet.networks.v4.length > 0)
       return this.droplet.networks.v4[0].ip_address;
     return '';
   }
 
-  getDropletRegion() {
+  getDropletRegion(): string {
     if (this.droplet)
       return this.droplet.region.name;
     return '';
