@@ -4,13 +4,24 @@
 
 <div class="row">
   <div class="col">
-    <button nbButton [disabled]="isBooting" (click)="dropletAction()"> {{ isDropletRunning() ? 'Destroy Droplet' : 'Create Droplet' }}</button>
+    <button nbButton [disabled]="isBooting" [nbSpinner]="isBooting" (click)="dropletAction()">
+      {{ isDropletRunning() ? 'Destroy Droplet' : 'Create Droplet' }}
+    </button>
   </div>
 </div>
 <br>
 <div class="row">
   <div class="col">
-    <button nbButton [disabled]="!isDropletRunning()"  (click)="connect()">{{ vpnConnected ? 'Disconnect' : 'Connect' }}</button>
+    <button nbButton [disabled]="!isDropletRunning() || connectSpinner" [nbSpinner]="connectSpinner" (click)="connect()">
+      {{ vpnConnected ? 'Disconnect' : 'Connect' }}
+    </button>
+  </div>
+</div>
+<br>
+
+<div class="row">
+  <div class="col">
+    <!-- <app-log-display></app-log-display> -->
   </div>
 </div>
 

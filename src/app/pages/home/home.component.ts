@@ -1,10 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { config, ConfigKeys } from '../../shared/config';
 import * as powershell from 'node-powershell';
 import { state } from '../../shared/state';
 import { VpsService } from '../../providers/vps-service/vps.service';
 import { Events } from '../../providers/events';
-const DigitalOcean = require('do-wrapper').default;
 
 @Component({
   selector: 'app-home',
@@ -17,6 +15,7 @@ export class HomeComponent implements OnInit {
   vpnConnected = false;
   isBooting = false;
   currentKey: string;
+  connectSpinner = false;
 
   constructor(public vpsService: VpsService, public events: Events) { }
 
@@ -76,13 +75,12 @@ Catch
       return;
 
     // TODO: handle config updates
-
     if (this.isDropletRunning()) {
-      this.vpsService.destroyDroplet().then(() => {
-        this.isBooting = false;
-      }).catch(() => {
+      this.vpsService.destroyDroplet().catch(() => {
         // TODO: better user message displaying
         alert('an error ocurred while destroying droplet');
+      }).finally(() => {
+        this.isBooting = false;
       });
     } else {
       this.isBooting = true;
@@ -101,8 +99,22 @@ Catch
   }
 
   connect() {
-
+    this.connectSpinner = true;
     if (this.vpnConnected) {
+      let ps = new powershell({
+        executionPolicy: 'Bypass',
+        noProfile: true
+      });
+
+      ps.addCommand('rasdial "SelfVPN" /disconnect');
+      ps.invoke().then((output: string) => {
+        console.log(output);
+        this.vpnConnected = false;
+      }).catch(err => {
+        console.error('error while disconnecting, ', err);
+      }).finally(() => {
+        this.connectSpinner = false;
+      });
 
     } else {
       let ps = new powershell({
@@ -162,6 +174,7 @@ if($vpn.ConnectionStatus -eq "Disconnected"){
       .catch(err => {
         console.error('err', err);
       }).finally(() => {
+        this.connectSpinner = false;
         ps.dispose();
       });
     }

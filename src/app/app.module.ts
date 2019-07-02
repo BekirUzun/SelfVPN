@@ -28,6 +28,8 @@ import { NbEvaIconsModule } from '@nebular/eva-icons';
 import { NavModule } from './components/nav/nav.module';
 
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { LogDisplayModule } from './components/log-display/log-display.module';
+import { LogDisplayComponent } from './components/log-display/log-display.component';
 
 // AoT requires an exported function for factories
 export function HttpLoaderFactory(http: HttpClient) {
@@ -46,6 +48,7 @@ export function HttpLoaderFactory(http: HttpClient) {
     AppRoutingModule,
     HomeModule,
     SettingsModule,
+    LogDisplayModule,
     NavModule,
     TranslateModule.forRoot({
       loader: {

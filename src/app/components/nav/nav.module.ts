@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NavComponent } from './nav.component';
-import { NbButtonModule, NbIconModule, NbLayoutColumnComponent } from '@nebular/theme';
+import { NbButtonModule, NbIconModule } from '@nebular/theme';
 import { RouterModule } from '@angular/router';
 
 @NgModule({

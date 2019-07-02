@@ -16,8 +16,6 @@ html, body {
 #header {
   -webkit-app-region: drag;
 
-  
-
   nav {
     height: $header-height;
     padding: .75rem 0 .75rem 1rem;
@@ -32,6 +30,13 @@ html, body {
   }
 }
 
+#footer {
+  nav {
+    justify-content: space-between;
+    padding: .75rem 0 .75rem 1rem;
+  }
+}
+
 .nb-theme-dark nb-layout .layout nb-layout-header ~ .layout-container {
   min-height: calc(100vh - #{$header-height});
 }
@@ -39,7 +44,7 @@ html, body {
   padding-top: $header-height;
 }
 
-.settings-window {
+.custom-window {
   nb-card-header {
     padding: .5rem .75rem;
 
@@ -66,13 +71,20 @@ html, body {
 
 .nb-theme-dark nb-spinner {
   background-color: rgba(0,0,0,0.3);
-  position: fixed;
 
   .spin-circle {
     border-right-color: #81a1ff;
   }
 }
 
+.nb-theme-dark > app-root > nb-layout > nb-spinner {
+  position: fixed;
+}
+
 .nb-spinner-container > :not(nb-spinner) {
   filter: blur(1px);
+}
+
+textarea {
+  resize: none;
 }

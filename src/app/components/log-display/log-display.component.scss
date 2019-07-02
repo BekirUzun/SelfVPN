@@ -1,0 +1,32 @@
+.scroll-area {
+    height: 6rem;
+    width: 100%;
+    background-color: #1a2138;
+    border: 1px solid;
+    border-color: #151a30;
+    border-radius: .25rem;
+    transition: border-color .2s ease;
+    padding: .5rem .75rem;
+    overflow: auto;
+
+    &:hover {
+        border-color: #598bff;    
+    }
+
+    .message {
+        position: relative;
+        margin-bottom: .25rem;
+
+        &:before {
+            content: '';
+            position: absolute;
+            left: -12px;
+            top: .5rem;
+            width: 0;
+            height: 0;
+            border-style: solid;
+            border-width: 4px 0 4px 8px;
+            border-color: transparent transparent transparent #7b51db;
+        }
+    }
+}

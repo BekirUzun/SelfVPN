@@ -98,7 +98,6 @@ runcmd:
 
   checkDroplets(): Promise<void> {
     return this.api.dropletsGetAll().then((resp) => {
-      console.log(resp);
       if (resp.body.droplets && resp.body.droplets.length) {
         resp.body.droplets.forEach(d => {
           console.log(d);
@@ -108,6 +107,9 @@ runcmd:
           }
         });
       }
+    }).catch(err => {
+      console.log('error while checking droplets, ', err);
+      return err;
     });
   }
 
