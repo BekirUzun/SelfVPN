@@ -17,7 +17,7 @@ import { FormsModule } from '@angular/forms';
     NbTooltipModule,
   ],
   exports: [
-    SettingsComponent
+    SettingsComponent,
   ]
 })
 export class SettingsModule { }

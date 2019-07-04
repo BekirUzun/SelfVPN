@@ -10,7 +10,8 @@ export enum ConfigKeys {
     password = 'password',
     psk = 'psk',
     sshId = 'sshId',
-    windowPosition = 'windowPosition'
+    windowPosition = 'windowPosition',
+    region = 'region'
 }
 
 class Store {
@@ -69,6 +70,9 @@ class Store {
             case ConfigKeys.windowPosition: {
                 const size = screen.getPrimaryDisplay().workAreaSize;
                 return { x: size.width / 2 - 200, y: size.height / 2 - 250 };
+            }
+            case ConfigKeys.region: {
+                return 'ams3';
             }
             default: {
                return '';

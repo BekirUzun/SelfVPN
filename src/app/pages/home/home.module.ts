@@ -1,8 +1,9 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HomeComponent } from './home.component';
-import { NbButtonModule, NbSpinnerModule } from '@nebular/theme';
+import { NbButtonModule, NbSpinnerModule, NbSelectModule } from '@nebular/theme';
 import { LogDisplayModule } from '../../components/log-display/log-display.module';
+import { FormsModule } from '@angular/forms';
 
 @NgModule({
   declarations: [
@@ -12,7 +13,9 @@ import { LogDisplayModule } from '../../components/log-display/log-display.modul
     CommonModule,
     NbButtonModule,
     NbSpinnerModule,
-    LogDisplayModule
+    LogDisplayModule,
+    NbSelectModule,
+    FormsModule
   ],
   exports: [
     HomeComponent

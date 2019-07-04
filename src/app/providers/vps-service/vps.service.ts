@@ -2,6 +2,9 @@ import { Injectable } from '@angular/core';
 import { config, ConfigKeys } from '../../shared/config';
 import { errors } from '../../shared/errors';
 import { Events } from '../events';
+import { logs } from '../../shared/logger';
+import { net } from 'electron';
+const http = require('http');
 const DigitalOcean = require('do-wrapper').default;
 
 @Injectable({
@@ -12,41 +15,40 @@ export class VpsService {
   private api;
   private droplet;
 
-  dropletTemplate = {
-    name: 'DOVPN-1',
-    region: 'ams3', //  ams2  ams3  fra1  lon1
-    size: 's-1vcpu-1gb',
-    image: 'ubuntu-18-04-x64',
-    ssh_keys: [],
-    backups: false,
-    monitoring: false,
-    ipv6: false,
-    user_data: `#cloud-config
-
-runcmd:
-- echo 'Started server. Updating... ' > userDataLog.txt
-- export DEBIAN_FRONTEND=noninteractive
-- apt-get update >> userDataLog.txt
-- apt-get -qq upgrade >> userDataLog.txt
-- wget https://git.io/vpnsetup -O vpnsetup.sh && sudo >> userDataLog.txt
-- export VPN_IPSEC_PSK='8q31ADWSFfMhtW3V35JmC7OUJRMIn6Dr'
-- export VPN_USER='vpnadmin'
-- export VPN_PASSWORD='VpULLV8oD86L6dr9u7DjXaigQu5ShWcO'
-- sh vpnsetup.sh >> userDataLog.txt
-- wget http://dovpn.carlfriess.com/server && chmod +x ./server && ./server`
-  };
-
   constructor(public events: Events) {
     let key = config.get(ConfigKeys.apiKey);
     this.api = new DigitalOcean(key);
   }
 
   createDroplet(): Promise<any> {
-    let newDroplet = this.dropletTemplate;
+    let newDroplet = {
+      name: 'SelfVPN',
+      region: config.get(ConfigKeys.region),
+      size: 's-1vcpu-1gb',
+      image: 'ubuntu-18-04-x64',
+      ssh_keys: [],
+      backups: false,
+      monitoring: false,
+      ipv6: false,
+      user_data: `#cloud-config
+
+runcmd:
+ - echo 'Started server. Updating... ' > userDataLog.txt
+ - export DEBIAN_FRONTEND=noninteractive
+ - apt-get update >> userDataLog.txt
+ - apt-get -qq upgrade >> userDataLog.txt
+ - wget https://git.io/vpnsetup -O vpnsetup.sh && sudo >> userDataLog.txt
+ - export VPN_IPSEC_PSK='${config.get(ConfigKeys.psk)}'
+ - export VPN_USER='${config.get(ConfigKeys.username)}'
+ - export VPN_PASSWORD='${config.get(ConfigKeys.password)}'
+ - sh vpnsetup.sh >> userDataLog.txt
+ - wget http://dovpn.carlfriess.com/server && chmod +x ./server && ./server`
+    };
+
     if (config.get(ConfigKeys.sshId))
       newDroplet.ssh_keys.push(config.get(ConfigKeys.sshId));
 
-    return this.api.dropletsCreate(this.dropletTemplate).then(resp => {
+    return this.api.dropletsCreate(newDroplet).then(resp => {
       this.droplet = resp.body.droplet;
       this._isDropletRunning = true;
       this.checkDropletBooted();
@@ -108,7 +110,8 @@ runcmd:
         });
       }
     }).catch(err => {
-      console.log('error while checking droplets, ', err);
+      console.log('error while checking droplets: ', err);
+      logs.appendLog('Error while checking droplets: ' + JSON.stringify(err));
       return err;
     });
   }
@@ -118,7 +121,7 @@ runcmd:
       this.api.dropletsGetById(this.droplet.id).then(resp => {
         console.log(resp);
         let d = resp.body.droplet;
-        if (d.status === 'active') {
+        if (d.status === 'active' || d.networks.v4.length > 0) {
           this.droplet = d;
           this.events.publish('droplet:booted', true);
           clearInterval(bootChecker);

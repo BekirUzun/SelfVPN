@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { logs, LogMessage } from '../../shared/logger';
 
 @Component({
   selector: 'app-log-display',
@@ -8,20 +9,12 @@ import { Component, OnInit } from '@angular/core';
 export class LogDisplayComponent implements OnInit {
 
   isLogsHidden = false;
-  logMessages: {
-    date: string,
-    text: string
-  }[] = [];
+  logMessages: LogMessage[] = [];
 
   constructor() { }
 
   ngOnInit() {
-    this.logMessages.push({date: 'asd', text: 'Hello world'});
-    this.logMessages.push({date: 'asd', text: 'Nice day'});
-  }
-
-  public appendLog(messageText: string) {
-    this.logMessages.push({date: 'asd', text: messageText});
+   this.logMessages = logs.getLogs();
   }
 
   toggleVisibility() {

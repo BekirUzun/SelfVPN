@@ -3,6 +3,8 @@ import * as powershell from 'node-powershell';
 import { state } from '../../shared/state';
 import { VpsService } from '../../providers/vps-service/vps.service';
 import { Events } from '../../providers/events';
+import { logs } from '../../shared/logger';
+import { config, ConfigKeys } from '../../shared/config';
 
 @Component({
   selector: 'app-home',
@@ -16,10 +18,15 @@ export class HomeComponent implements OnInit {
   isBooting = false;
   currentKey: string;
   connectSpinner = false;
+  selectedRegion = 'ams3'; // TODO: get this from config and save it when user changes
+  powerOn = false;
 
   constructor(public vpsService: VpsService, public events: Events) { }
 
   ngOnInit() {
+
+    this.selectedRegion = config.get(ConfigKeys.region);
+
     this.vpsService.checkDroplets().then(() => {
       // TODO: make droplet and connection checking parallel
       let ps = new powershell({
@@ -43,10 +50,13 @@ Catch
       ps.invoke().then((output: string) => {
         if (output.includes('Connected')) {
           this.vpnConnected = true;
+          this.powerOn = true;
+          logs.appendLog('VPN already connected');
         }
       })
       .catch(err => {
         console.error('err', err);
+        logs.appendLog('Error while checking VPN connection: ' + JSON.stringify(err));
       }).finally(() => {
         ps.dispose();
         state.isHomeLoading = false;
@@ -66,8 +76,11 @@ Catch
     return this.vpsService.getDropletRegion();
   }
 
-  dropletAction() {
+  selectChanged() {
+    config.set(ConfigKeys.region, this.selectedRegion);
+  }
 
+  dropletAction() {
     // TODO: better confirmation UI
     let msg = this.isDropletRunning() ? 'Are you sure to destroy vpn droplet?' : 'Are you sure to create new droplet?';
     let ok = confirm(msg);
@@ -76,22 +89,32 @@ Catch
 
     // TODO: handle config updates
     if (this.isDropletRunning()) {
-      this.vpsService.destroyDroplet().catch(() => {
+      this.vpsService.destroyDroplet().catch(err => {
         // TODO: better user message displaying
-        alert('an error ocurred while destroying droplet');
+        alert('An error ocurred while destroying droplet');
+        logs.appendLog('Error while destroying droplet: ' + JSON.stringify(err));
       }).finally(() => {
         this.isBooting = false;
       });
     } else {
+      config.set(ConfigKeys.region, this.selectedRegion);
       this.isBooting = true;
-      this.vpsService.createDroplet();
+      this.vpsService.createDroplet().catch(err => {
+        // TODO: better user message displaying
+        alert('An error ocurred while creating droplet');
+        logs.appendLog('Error while creating droplet: ' + JSON.stringify(err));
+      }).finally(() => {
+        this.isBooting = false;
+      });
       this.events.subscribe('droplet:booted', (data) => {
         console.log('droplet:booted data: ', data);
+        logs.appendLog('Droplet booted.');
         this.isBooting = false;
       });
 
       this.events.subscribe('droplet:ready', (data) => {
-        console.log(data);
+        console.log('droplet:ready data: ', data);
+        logs.appendLog('Droplet is ready for connections.');
         // TODO: handle droplet ready to connect
       });
 
@@ -99,6 +122,11 @@ Catch
   }
 
   connect() {
+    if (!this.isDropletRunning() || this.connectSpinner)
+      return;
+
+    this.powerOn = !this.powerOn;
+
     this.connectSpinner = true;
     if (this.vpnConnected) {
       let ps = new powershell({
@@ -106,14 +134,18 @@ Catch
         noProfile: true
       });
 
-      ps.addCommand('rasdial "SelfVPN" /disconnect');
+      ps.addCommand('rasdial "SelfVPN" /disconnect ');
       ps.invoke().then((output: string) => {
         console.log(output);
         this.vpnConnected = false;
+        this.powerOn = false;
+        logs.appendLog('Disconnected from VPN.');
       }).catch(err => {
         console.error('error while disconnecting, ', err);
+        logs.appendLog('Error while disconnecting: ' + JSON.stringify(err));
       }).finally(() => {
         this.connectSpinner = false;
+
       });
 
     } else {
@@ -126,34 +158,26 @@ Catch
       ps.addCommand(`
 $vpnName = "SelfVPN";
 $vpnServer = "${this.vpsService.getDropletIP()}";
-$vpnUsername = "vpnadmin"
-$vpnPassword = "VpULLV8oD86L6dr9u7DjXaigQu5ShWcO";
-$vpnPsk = "8q31ADWSFfMhtW3V35JmC7OUJRMIn6Dr";
+$vpnUsername = "${config.get(ConfigKeys.username)}"
+$vpnPassword = "${config.get(ConfigKeys.password)}";
+$vpnPsk = "${config.get(ConfigKeys.psk)}";
 
 Try
 {
-  $vpnTest = Get-VpnConnection -Name $vpnName -ErrorAction Stop;
-  Write-Host "- vpn found";
+  Remove-VpnConnection -Name $vpnName -Force -PassThru | Out-Null;
+  Write-Host "Removing old vpn profile...";
 }
-Catch
-{
-  Write-Host "- no vpn found, adding...";
-  Add-VpnConnection -Name $vpnName -ServerAddress $vpnServer -L2tpPsk $vpnPsk -TunnelType L2tp -EncryptionLevel Required -AuthenticationMethod Chap,MSChapv2 -Force -RememberCredential -PassThru | Out-Null;
-}
+Catch { }
+Write-Host "Adding new vpn profile...";
+Add-VpnConnection -Name $vpnName -ServerAddress $vpnServer -L2tpPsk $vpnPsk -TunnelType L2tp -EncryptionLevel Required -AuthenticationMethod Chap,MSChapv2 -Force -PassThru | Out-Null;
 
 $vpn = Get-VpnConnection -Name $vpnName;
-if($vpn.ServerAddress -ne $vpnServer){
-  Write-Host "- changing vpn server adress...";
-  Set-VpnConnection -Name $vpnName -ServerAddress $vpnServer -PassThru | Out-Null;
-} else {
-  Write-Host "- server adress is correct";
-}
 
 if($vpn.ConnectionStatus -eq "Disconnected"){
-  Write-Host "- starting rasdial...";
+  Write-Host "Starting rasdial...";
   rasdial $vpnName $vpnUsername $vpnPassword;
 } else {
-  Write-Host "- vpn already connected. exiting...";
+  Write-Host "Vpn already connected.";
 }
 `); // DO NOT REMOVE LAST LINE BREAK!
 
@@ -161,7 +185,7 @@ if($vpn.ConnectionStatus -eq "Disconnected"){
         if (!data || data.includes('EOI') || !data.trim())
           return;
 
-        console.log(data);
+        logs.appendLog(data);
       });
 
       // Pull the Trigger
@@ -169,10 +193,12 @@ if($vpn.ConnectionStatus -eq "Disconnected"){
         console.log('powershell closed, output: ', output);
         if (output.includes('connected')) {
           this.vpnConnected = true;
+          logs.appendLog('Connected to vpn on ip: ' + this.vpsService.getDropletIP());
         }
       })
       .catch(err => {
         console.error('err', err);
+        logs.appendLog('Error while connecting vpn: ' + JSON.stringify(err));
       }).finally(() => {
         this.connectSpinner = false;
         ps.dispose();
@@ -180,4 +206,27 @@ if($vpn.ConnectionStatus -eq "Disconnected"){
     }
   }
 
+  powerClick() {
+
+    this.powerOn = !this.powerOn;
+    // this.connectSpinner = true;
+
+    if (this.powerOn) {
+      setTimeout(() => {
+        this.vpnConnected = true;
+      }, 2000);
+    } else {
+      this.vpnConnected = false;
+    }
+  }
+
+  test() {
+    // this.events.subscribe('droplet:ready', (data) => {
+    //   console.log('droplet:ready data: ', data);
+    //   logs.appendLog('Droplet is ready for connections.');
+    //   // TODO: handle droplet ready to connect
+    // });
+
+    // this.vpsService.checkDropletReady();
+  }
 }
