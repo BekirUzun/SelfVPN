@@ -1,7 +1,6 @@
 import { app, BrowserWindow, screen } from 'electron';
 import * as path from 'path';
 import * as url from 'url';
-import { config, ConfigKeys } from './src/app/shared/config';
 
 let win: BrowserWindow, serve;
 const args = process.argv.slice(1);
@@ -11,12 +10,12 @@ function createWindow() {
 
   const electronScreen = screen;
   const size = electronScreen.getPrimaryDisplay().workAreaSize;
-  const position = config.get(ConfigKeys.windowPosition);
+  // const position = config.get(ConfigKeys.windowPosition);
 
   // Create the browser window.
   win = new BrowserWindow({
-    x: position.x,
-    y: position.y,
+    x: 600,
+    y: 300,
     width: 400, // size.width,
     height: 500, // size.height,
     fullscreenable: false,
@@ -65,9 +64,8 @@ function createWindow() {
       x: bounds.x,
       y: bounds.y
     };
-    config.set(ConfigKeys.windowPosition, lastPosition);
+    // config.set(ConfigKeys.windowPosition, lastPosition);
   });
-
 }
 
 try {

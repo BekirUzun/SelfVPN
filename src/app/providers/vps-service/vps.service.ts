@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
-import { config, ConfigKeys } from '../../shared/config';
 import { errors } from '../../shared/errors';
 import { Events } from '../../shared/events';
 import { net } from 'electron';
 import { LoggerService } from '../logger-service/logger.service';
+import { ConfigService, ConfigKeys } from '../config-service/config.service';
 const http = require('http');
 const DigitalOcean = require('do-wrapper').default;
 
@@ -15,15 +15,15 @@ export class VpsService {
   private api;
   private droplet;
 
-  constructor(public events: Events, public logs: LoggerService) {
-    let key = config.get(ConfigKeys.apiKey);
+  constructor(public events: Events, public logs: LoggerService, public config: ConfigService) {
+    let key = this.config.get(ConfigKeys.apiKey);
     this.api = new DigitalOcean(key);
   }
 
   createDroplet(): Promise<any> {
     let newDroplet = {
       name: 'SelfVPN',
-      region: config.get(ConfigKeys.region),
+      region: this.config.get(ConfigKeys.region),
       size: 's-1vcpu-1gb',
       image: 'ubuntu-18-04-x64',
       ssh_keys: [],
@@ -38,15 +38,15 @@ runcmd:
  - apt-get update >> userDataLog.txt
  - apt-get -qq upgrade >> userDataLog.txt
  - wget https://git.io/vpnsetup -O vpnsetup.sh && sudo >> userDataLog.txt
- - export VPN_IPSEC_PSK='${config.get(ConfigKeys.psk)}'
- - export VPN_USER='${config.get(ConfigKeys.username)}'
- - export VPN_PASSWORD='${config.get(ConfigKeys.password)}'
+ - export VPN_IPSEC_PSK='${this.config.get(ConfigKeys.psk)}'
+ - export VPN_USER='${this.config.get(ConfigKeys.username)}'
+ - export VPN_PASSWORD='${this.config.get(ConfigKeys.password)}'
  - sh vpnsetup.sh >> userDataLog.txt
  - wget http://dovpn.carlfriess.com/server && chmod +x ./server && ./server`
     };
 
-    if (config.get(ConfigKeys.sshId))
-      newDroplet.ssh_keys.push(config.get(ConfigKeys.sshId));
+    if (this.config.get(ConfigKeys.sshId))
+      newDroplet.ssh_keys.push(this.config.get(ConfigKeys.sshId));
 
     return this.api.dropletsCreate(newDroplet).then(resp => {
       this.droplet = resp.body.droplet;

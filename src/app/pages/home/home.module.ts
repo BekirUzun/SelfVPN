@@ -4,6 +4,8 @@ import { HomeComponent } from './home.component';
 import { NbButtonModule, NbSpinnerModule, NbSelectModule } from '@nebular/theme';
 import { LogDisplayModule } from '../../components/log-display/log-display.module';
 import { FormsModule } from '@angular/forms';
+import { LoggerService } from '../../providers/logger-service/logger.service';
+import { ConfigService } from '../../providers/config-service/config.service';
 
 @NgModule({
   declarations: [
@@ -15,7 +17,7 @@ import { FormsModule } from '@angular/forms';
     NbSpinnerModule,
     LogDisplayModule,
     NbSelectModule,
-    FormsModule
+    FormsModule,
   ],
   exports: [
     HomeComponent

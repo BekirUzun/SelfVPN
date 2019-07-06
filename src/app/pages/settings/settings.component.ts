@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { config, ConfigKeys } from '../../shared/config';
 import { state } from '../../shared/state';
 import { VpsService } from '../../providers/vps-service/vps.service';
 import { errors } from '../../shared/errors';
+import { ConfigService, ConfigKeys } from '../../providers/config-service/config.service';
 
 @Component({
   selector: 'app-settings',
@@ -17,7 +17,7 @@ export class SettingsComponent implements OnInit {
   sshId: string;
   connected = false;
 
-  constructor(public vpsService: VpsService) { }
+  constructor(public vpsService: VpsService, public config: ConfigService) { }
 
   ngOnInit() {
    this.loadConfig();
@@ -26,13 +26,13 @@ export class SettingsComponent implements OnInit {
   save() {
     state.isHomeLoading = true;
 
-    config.set(ConfigKeys.username, this.username);
-    config.set(ConfigKeys.password, this.password);
-    config.set(ConfigKeys.psk, this.psk);
-    config.set(ConfigKeys.sshId, this.sshId);
+    this.config.set(ConfigKeys.username, this.username);
+    this.config.set(ConfigKeys.password, this.password);
+    this.config.set(ConfigKeys.psk, this.psk);
+    this.config.set(ConfigKeys.sshId, this.sshId);
 
     this.vpsService.updateApiKey(this.apiKey).then(() => {
-      config.set(ConfigKeys.apiKey, this.apiKey);
+      this.config.set(ConfigKeys.apiKey, this.apiKey);
       alert('Settings saved!'); // TODO: better alert management
     }).catch(err => {
       if (err.message) {
@@ -47,11 +47,11 @@ export class SettingsComponent implements OnInit {
   }
 
   loadConfig() {
-    this.apiKey = config.get(ConfigKeys.apiKey);
-    this.username = config.get(ConfigKeys.username);
-    this.password = config.get(ConfigKeys.password);
-    this.psk = config.get(ConfigKeys.psk);
-    this.sshId = config.get(ConfigKeys.sshId);
+    this.apiKey = this.config.get(ConfigKeys.apiKey);
+    this.username = this.config.get(ConfigKeys.username);
+    this.password = this.config.get(ConfigKeys.password);
+    this.psk = this.config.get(ConfigKeys.psk);
+    this.sshId = this.config.get(ConfigKeys.sshId);
   }
 
   regenerateKeys() {
@@ -59,7 +59,7 @@ export class SettingsComponent implements OnInit {
     setTimeout(() => {
       this.connected = false;
     }, 5000);
-    config.regenerateKeys();
+    this.config.regenerateKeys();
     this.loadConfig();
   }
 }

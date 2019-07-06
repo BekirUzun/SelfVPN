@@ -3,8 +3,8 @@ import * as powershell from 'node-powershell';
 import { state } from '../../shared/state';
 import { VpsService } from '../../providers/vps-service/vps.service';
 import { Events } from '../../shared/events';
-import { config, ConfigKeys } from '../../shared/config';
 import { LoggerService } from '../../providers/logger-service/logger.service';
+import { ConfigService, ConfigKeys } from '../../providers/config-service/config.service';
 
 @Component({
   selector: 'app-home',
@@ -24,12 +24,13 @@ export class HomeComponent implements OnInit {
   constructor(
     public vpsService: VpsService,
     public events: Events,
-    public logs: LoggerService) { }
+    public logs: LoggerService,
+    public config: ConfigService) { }
 
   ngOnInit() {
     this.logs.appendLog('home init');
 
-    this.selectedRegion = config.get(ConfigKeys.region);
+    this.selectedRegion = this.config.get(ConfigKeys.region);
 
     this.vpsService.checkDroplets().then(() => {
       // TODO: make droplet and connection checking parallel
@@ -81,7 +82,7 @@ Catch
   }
 
   selectChanged() {
-    config.set(ConfigKeys.region, this.selectedRegion);
+    this.config.set(ConfigKeys.region, this.selectedRegion);
   }
 
   dropletAction() {
@@ -101,7 +102,7 @@ Catch
         this.isBooting = false;
       });
     } else {
-      config.set(ConfigKeys.region, this.selectedRegion);
+      this.config.set(ConfigKeys.region, this.selectedRegion);
       this.isBooting = true;
       this.vpsService.createDroplet().catch(err => {
         // TODO: better user message displaying
@@ -162,9 +163,9 @@ Catch
       ps.addCommand(`
 $vpnName = "SelfVPN";
 $vpnServer = "${this.vpsService.getDropletIP()}";
-$vpnUsername = "${config.get(ConfigKeys.username)}"
-$vpnPassword = "${config.get(ConfigKeys.password)}";
-$vpnPsk = "${config.get(ConfigKeys.psk)}";
+$vpnUsername = "${this.config.get(ConfigKeys.username)}"
+$vpnPassword = "${this.config.get(ConfigKeys.password)}";
+$vpnPsk = "${this.config.get(ConfigKeys.psk)}";
 
 Try
 {
