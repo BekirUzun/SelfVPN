@@ -124,9 +124,28 @@ runcmd:
         if (d.status === 'active' || d.networks.v4.length > 0) {
           this.droplet = d;
           this.events.publish('droplet:booted', true);
+          this.checkDropletReady();
           clearInterval(bootChecker);
         }
       });
+    }, 10000);
+  }
+
+  checkDropletReady() {
+    let readyChecker = setInterval(() => {
+
+      http.get('http://' + this.getDropletIP() + '/', (res) => {
+        console.log('res', res);
+        if (res.statusCode === 200) {
+          this.events.publish('droplet:ready', true);
+          clearInterval(readyChecker);
+        }
+      }).on('error', (e) => {
+        console.log('error', e);
+      });
+
+      clearInterval(readyChecker);
+
     }, 10000);
   }
 

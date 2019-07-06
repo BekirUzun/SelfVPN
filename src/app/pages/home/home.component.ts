@@ -18,7 +18,7 @@ export class HomeComponent implements OnInit {
   isBooting = false;
   currentKey: string;
   connectSpinner = false;
-  selectedRegion = 'ams3'; // TODO: get this from config and save it when user changes
+  selectedRegion = 'ams3';
   powerOn = false;
 
   constructor(public vpsService: VpsService, public events: Events) { }

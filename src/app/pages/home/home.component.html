@@ -1,10 +1,6 @@
-<p *ngIf="isDropletRunning()">
-  Droplet IP: {{ getDropletIP() }}, Region: {{ getDropletRegion() }}
-</p>
-
-<div class="row">
+<div class="row mb-3">
   <div class="col-6">
-    <nb-select class="region" fullWidth placeholder="Select Region" [(ngModel)]="selectedRegion" status="{{ selectionStatus }}" (selectedChange)="selectChanged()">
+    <nb-select class="region" fullWidth placeholder="Select Region" [(ngModel)]="selectedRegion" (selectedChange)="selectChanged()">
       <nb-option value="ams3">Amsterdam</nb-option>
       <nb-option value="fra1">Frankfurt</nb-option>
       <nb-option value="sfo1">San Francisco</nb-option>
@@ -12,15 +8,27 @@
     </nb-select>
   </div>
   <div class="col-6">
-    <button nbButton [disabled]="isBooting" [nbSpinner]="isBooting" (click)="dropletAction()">
-      {{ isDropletRunning() ? 'Destroy Droplet' : 'Create Droplet' }}
+    <button nbButton fullWidth [disabled]="isBooting" [nbSpinner]="isBooting" (click)="dropletAction()" status="{{ isDropletRunning() ? 'danger' : 'primary' }}">
+      {{ isDropletRunning() ? 'Destroy Server' : 'Create Server' }}
     </button>
   </div>
 </div>
-<br>
-<div class="row">
+
+<div class="row mb-5">
+  <div class="col-6">
+      Server IP: {{ getDropletIP() }}
+  </div>
+  <div class="col-6">
+      Region: {{ getDropletRegion() }}
+  </div>
+</div>
+
+<div class="row mb-3">
   <div class="col action">
     <div class="circle">
+      <div class="dot-spinner {{ powerOn && !vpnConnected ? 'animate' : '' }}">
+        <div class="dot"></div>
+      </div>
       <span class="label top {{ !powerOn ? 'selected' : '' }}">off</span>
       <a (click)="connect()" class="power-button {{ powerOn ? 'on' : '' }} {{ vpnConnected ? 'connected' : '' }}" id="button">
         <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
