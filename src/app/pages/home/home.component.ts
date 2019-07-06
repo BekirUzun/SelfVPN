@@ -2,9 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import * as powershell from 'node-powershell';
 import { state } from '../../shared/state';
 import { VpsService } from '../../providers/vps-service/vps.service';
-import { Events } from '../../providers/events';
-import { logs } from '../../shared/logger';
+import { Events } from '../../shared/events';
 import { config, ConfigKeys } from '../../shared/config';
+import { LoggerService } from '../../providers/logger-service/logger.service';
 
 @Component({
   selector: 'app-home',
@@ -21,9 +21,13 @@ export class HomeComponent implements OnInit {
   selectedRegion = 'ams3';
   powerOn = false;
 
-  constructor(public vpsService: VpsService, public events: Events) { }
+  constructor(
+    public vpsService: VpsService,
+    public events: Events,
+    public logs: LoggerService) { }
 
   ngOnInit() {
+    this.logs.appendLog('home init');
 
     this.selectedRegion = config.get(ConfigKeys.region);
 
@@ -51,12 +55,12 @@ Catch
         if (output.includes('Connected')) {
           this.vpnConnected = true;
           this.powerOn = true;
-          logs.appendLog('VPN already connected');
+          this.logs.appendLog('VPN already connected');
         }
       })
       .catch(err => {
         console.error('err', err);
-        logs.appendLog('Error while checking VPN connection: ' + JSON.stringify(err));
+        this.logs.appendLog('Error while checking VPN connection: ' + JSON.stringify(err));
       }).finally(() => {
         ps.dispose();
         state.isHomeLoading = false;
@@ -92,7 +96,7 @@ Catch
       this.vpsService.destroyDroplet().catch(err => {
         // TODO: better user message displaying
         alert('An error ocurred while destroying droplet');
-        logs.appendLog('Error while destroying droplet: ' + JSON.stringify(err));
+        this.logs.appendLog('Error while destroying droplet: ' + JSON.stringify(err));
       }).finally(() => {
         this.isBooting = false;
       });
@@ -102,19 +106,19 @@ Catch
       this.vpsService.createDroplet().catch(err => {
         // TODO: better user message displaying
         alert('An error ocurred while creating droplet');
-        logs.appendLog('Error while creating droplet: ' + JSON.stringify(err));
+        this.logs.appendLog('Error while creating droplet: ' + JSON.stringify(err));
       }).finally(() => {
         this.isBooting = false;
       });
       this.events.subscribe('droplet:booted', (data) => {
         console.log('droplet:booted data: ', data);
-        logs.appendLog('Droplet booted.');
+        this.logs.appendLog('Droplet booted.');
         this.isBooting = false;
       });
 
       this.events.subscribe('droplet:ready', (data) => {
         console.log('droplet:ready data: ', data);
-        logs.appendLog('Droplet is ready for connections.');
+        this.logs.appendLog('Droplet is ready for connections.');
         // TODO: handle droplet ready to connect
       });
 
@@ -139,10 +143,10 @@ Catch
         console.log(output);
         this.vpnConnected = false;
         this.powerOn = false;
-        logs.appendLog('Disconnected from VPN.');
+        this.logs.appendLog('Disconnected from VPN.');
       }).catch(err => {
         console.error('error while disconnecting, ', err);
-        logs.appendLog('Error while disconnecting: ' + JSON.stringify(err));
+        this.logs.appendLog('Error while disconnecting: ' + JSON.stringify(err));
       }).finally(() => {
         this.connectSpinner = false;
 
@@ -185,7 +189,7 @@ if($vpn.ConnectionStatus -eq "Disconnected"){
         if (!data || data.includes('EOI') || !data.trim())
           return;
 
-        logs.appendLog(data);
+        this.logs.appendLog(data);
       });
 
       // Pull the Trigger
@@ -193,12 +197,12 @@ if($vpn.ConnectionStatus -eq "Disconnected"){
         console.log('powershell closed, output: ', output);
         if (output.includes('connected')) {
           this.vpnConnected = true;
-          logs.appendLog('Connected to vpn on ip: ' + this.vpsService.getDropletIP());
+          this.logs.appendLog('Connected to vpn on ip: ' + this.vpsService.getDropletIP());
         }
       })
       .catch(err => {
         console.error('err', err);
-        logs.appendLog('Error while connecting vpn: ' + JSON.stringify(err));
+        this.logs.appendLog('Error while connecting vpn: ' + JSON.stringify(err));
       }).finally(() => {
         this.connectSpinner = false;
         ps.dispose();
@@ -223,7 +227,7 @@ if($vpn.ConnectionStatus -eq "Disconnected"){
   test() {
     // this.events.subscribe('droplet:ready', (data) => {
     //   console.log('droplet:ready data: ', data);
-    //   logs.appendLog('Droplet is ready for connections.');
+    //   this.logs.appendLog('Droplet is ready for connections.');
     //   // TODO: handle droplet ready to connect
     // });
 

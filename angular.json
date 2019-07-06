@@ -25,7 +25,7 @@
               "src/favicon.512x512.png"
             ],
             "styles": [
-              "node_modules/bootstrap/dist/css/bootstrap.min.css",
+              "node_modules/bootstrap-css-only/css/bootstrap-grid.min.css",
               "./node_modules/@nebular/theme/styles/prebuilt/dark.css",
               "src/styles.scss"
             ],

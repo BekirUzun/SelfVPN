@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
 import { config, ConfigKeys } from '../../shared/config';
 import { errors } from '../../shared/errors';
-import { Events } from '../events';
-import { logs } from '../../shared/logger';
+import { Events } from '../../shared/events';
 import { net } from 'electron';
+import { LoggerService } from '../logger-service/logger.service';
 const http = require('http');
 const DigitalOcean = require('do-wrapper').default;
 
@@ -15,7 +15,7 @@ export class VpsService {
   private api;
   private droplet;
 
-  constructor(public events: Events) {
+  constructor(public events: Events, public logs: LoggerService) {
     let key = config.get(ConfigKeys.apiKey);
     this.api = new DigitalOcean(key);
   }
@@ -111,7 +111,7 @@ runcmd:
       }
     }).catch(err => {
       console.log('error while checking droplets: ', err);
-      logs.appendLog('Error while checking droplets: ' + JSON.stringify(err));
+      this.logs.appendLog('Error while checking droplets: ' + JSON.stringify(err));
       return err;
     });
   }
