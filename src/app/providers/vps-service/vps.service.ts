@@ -144,10 +144,7 @@ runcmd:
         console.log('error', e);
       });
 
-      clearInterval(readyChecker);
-
     }, 10000);
   }
-
 
 }

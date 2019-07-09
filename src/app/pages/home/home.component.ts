@@ -24,11 +24,11 @@ export class HomeComponent implements OnInit {
   networkStatus = {
     Upload: {
       SentBytes: 0,
-      TotalMB: 0.0,
+      TotalMB: 0,
       Speed: 0
     },
     Download: {
-      TotalMB: 0.0,
+      TotalMB: 0,
       Speed: 0,
       ReceivedBytes: 0
     }
@@ -287,13 +287,15 @@ while($true)
       this.networkChecker.streams.stdout.on('data', (data: string) => {
         if (!data || data.includes('EOI') || !data.trim())
           return;
-
-        this.zone.run(() => this.networkStatus = JSON.parse(data));
-        this.logs.appendLog(data);
+        this.zone.run(() => {
+          console.log(data);
+          this.networkStatus = JSON.parse(data);
+        });
+        // this.logs.appendLog(data);
       });
       this.networkChecker.invoke().catch(err => {
         console.error('err', err);
-        this.logs.appendLog('Error while checking network usage: ' + JSON.stringify(err));
+        // this.logs.appendLog('Error while checking network usage: ' + JSON.stringify(err));
       });
   }
 
@@ -324,9 +326,14 @@ while($true)
   }
 
   stopNetworkMonitor() {
-    this.networkChecker.dispose().catch(err => {
-      this.logs.appendLog('Error while stopping network monitor: ' + JSON.stringify(err));
-    });
+    this.networkStatus.Download.Speed = 0;
+    this.networkStatus.Download.TotalMB = 0;
+    this.networkStatus.Upload.Speed = 0;
+    this.networkStatus.Upload.TotalMB = 0;
+
+    const process = require('process');
+    process.kill(this.networkChecker.pid);
+    this.networkChecker = undefined;
   }
 
 }
