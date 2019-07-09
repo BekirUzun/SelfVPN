@@ -17,7 +17,7 @@ function createWindow() {
     x: 600,
     y: 300,
     width: 400, // size.width,
-    height: 500, // size.height,
+    height: 450, // size.height,
     fullscreenable: false,
     resizable: false,
     webPreferences: {

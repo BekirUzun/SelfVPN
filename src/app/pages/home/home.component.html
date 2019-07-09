@@ -1,4 +1,4 @@
-<div class="row mb-3">
+<div class="row mb-4">
   <div class="col-6">
     <nb-select class="region" fullWidth placeholder="Select Region" [(ngModel)]="selectedRegion" (selectedChange)="selectChanged()">
       <nb-option value="ams3">Amsterdam</nb-option>
@@ -14,12 +14,80 @@
   </div>
 </div>
 
-<div class="row mb-5">
+<div class="row mb-4">
   <div class="col-6">
-      Server IP: {{ getDropletIP() }}
+    <div class="area">
+      <div class="label">
+        Server IP
+      </div>
+      <div class="content">
+        {{ getDropletIP() }}
+      </div>
+    </div>
   </div>
   <div class="col-6">
-      Region: {{ getDropletRegion() }}
+    <div class="area">
+      <div class="label">
+        Region
+      </div>
+      <div class="content">
+        {{ getDropletRegion() }}
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row mb-4">
+  <div class="col-6">
+    <div class="area icon">
+      <div class="label">
+        Current
+      </div>
+      <div class="content">
+        <div class="row">
+          <div class="col-6"> 
+            <img src="../../../assets/download.svg">
+          </div>
+          <div class="col-6">
+            <img src="../../../assets/upload.svg">
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-6"> 
+            {{ getDownloadSpeed() }}
+          </div>
+          <div class="col-6">
+            {{ getUploadSpeed() }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-6">
+    <div class="area icon">
+      <div class="label">
+        Total
+      </div>
+      <div class="content">
+        <div class="row">
+          <div class="col-6"> 
+            <img src="../../../assets/download.svg">
+          </div>
+          <div class="col-6">
+            <img src="../../../assets/upload.svg">
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-6"> 
+            {{ getTotalDownload() }}
+          </div>
+          <div class="col-6">
+            {{ getTotalUpload() }}
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -43,8 +111,4 @@
     </div>
   </div>
 </div>
-
-<!-- <button (click)="test()" >test</button> -->
-
-
 

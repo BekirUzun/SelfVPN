@@ -1,3 +1,6 @@
+@import '~@nebular/theme/styles/theming';
+@import '~@nebular/theme/styles/themes/dark';
+
 $header-height: 3rem;
 
 /* You can add global styles to this file, and also import other style files */
@@ -22,6 +25,10 @@ html, body {
     
     app-nav {
       width: 100%;
+
+      .flex-nav img {
+        height: 1.25rem;
+      }
     }
   }
 
@@ -237,7 +244,62 @@ a.power-button.on::before {
   }
 }
 
-.row.center {
-  text-align: center;
-  display: block;
+.row {
+  &.center {
+    text-align: center;
+    display: block;
+  }
+
+  .col-4, .col-6, .col-8 {
+    padding-right: 16px;
+    padding-left: 16px;
+  }
+  .col-6:nth-child(1) {
+    padding-right: 8px;
+  }
+  
+  .col-6:nth-child(2) {
+    padding-left: 8px;
+  }
 }
+
+.area {
+  position: relative;
+  
+  .label {
+    position: absolute;
+    top: -0.75rem;
+    left: 0.5rem;
+    background: #151a30;
+    padding: 0.2rem 0.4rem;
+  }
+  
+  .content {
+    display: inline-block;
+    padding: 0.75rem 1rem;
+    border: 1px solid nb-theme(color-primary-500);
+    border-radius: 4px;
+    width: 100%;
+  }
+
+  &.icon {
+    .content {
+      padding: 0.6rem 1rem 0.25rem 0.75rem;
+    }
+    .row {
+      padding: 0;
+      font-size: 0.8rem;
+
+      .col-6 {
+        text-align: center;
+      }
+    
+      img {
+        width: 1.25rem;
+        margin: 0 3px 0 5px;
+      }
+    
+    }
+  }
+}
+

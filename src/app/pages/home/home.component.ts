@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, NgZone } from '@angular/core';
 import * as powershell from 'node-powershell';
 import { state } from '../../shared/state';
 import { VpsService } from '../../providers/vps-service/vps.service';
@@ -20,12 +20,26 @@ export class HomeComponent implements OnInit {
   connectSpinner = false;
   selectedRegion = 'ams3';
   powerOn = false;
+  networkChecker;
+  networkStatus = {
+    Upload: {
+      SentBytes: 0,
+      TotalMB: 0.0,
+      Speed: 0
+    },
+    Download: {
+      TotalMB: 0.0,
+      Speed: 0,
+      ReceivedBytes: 0
+    }
+  };
 
   constructor(
     public vpsService: VpsService,
     public events: Events,
     public logs: LoggerService,
-    public config: ConfigService) { }
+    public config: ConfigService,
+    public zone: NgZone) { }
 
   ngOnInit() {
     this.logs.appendLog('home init');
@@ -56,6 +70,7 @@ Catch
         if (output.includes('Connected')) {
           this.vpnConnected = true;
           this.powerOn = true;
+          this.startNetworkMonitor();
           this.logs.appendLog('VPN already connected');
         }
       })
@@ -150,6 +165,7 @@ Catch
         this.logs.appendLog('Error while disconnecting: ' + JSON.stringify(err));
       }).finally(() => {
         this.connectSpinner = false;
+        this.stopNetworkMonitor();
 
       });
 
@@ -198,6 +214,7 @@ if($vpn.ConnectionStatus -eq "Disconnected"){
         console.log('powershell closed, output: ', output);
         if (output.includes('connected')) {
           this.vpnConnected = true;
+          this.startNetworkMonitor();
           this.logs.appendLog('Connected to vpn on ip: ' + this.vpsService.getDropletIP());
         }
       })
@@ -211,27 +228,105 @@ if($vpn.ConnectionStatus -eq "Disconnected"){
     }
   }
 
-  powerClick() {
+  startNetworkMonitor() {
+    this.networkChecker = new powershell({
+      executionPolicy: 'Bypass',
+      noProfile: true
+    });
 
-    this.powerOn = !this.powerOn;
-    // this.connectSpinner = true;
+    this.networkChecker.addCommand(`
+$totalDown = 0.0;
+$totalUp = 0.0;
+$lastRecv = 0;
+$lastSent = 0;
+$statsInit = Get-NetAdapterStatistics;
+$statsInit | ForEach-Object {
+    $lastRecv = $lastRecv + $_.ReceivedBytes;
+    $lastSent = $lastSent + $_.SentBytes;
+}
 
-    if (this.powerOn) {
-      setTimeout(() => {
-        this.vpnConnected = true;
-      }, 2000);
-    } else {
-      this.vpnConnected = false;
+while($true)
+{
+    Start-Sleep -s 1
+    $currRecv = 0;
+    $currSent = 0;
+    $stats = Get-NetAdapterStatistics;
+    $stats | ForEach-Object {
+        $currRecv += $_.ReceivedBytes;
+        $currSent += $_.SentBytes;
     }
+
+    $recvBytes = $currRecv - $lastRecv;
+    $sentBytes = $currSent - $lastSent;
+
+    $totalDown += $recvBytes * 0.00000085;
+    $totalUp += $sentBytes * 0.00000085;
+
+    $downSpeed = $recvBytes * 0.00085;
+    $uploadSpeed = $sentBytes * 0.00085;
+    $lastRecv = $currRecv;
+    $lastSent = $currSent;
+
+    $result = @{
+        Download = @{
+            Speed = $downSpeed
+            ReceivedBytes = $recvBytes
+            TotalMB = $totalDown
+        }
+        Upload = @{
+            Speed = $uploadSpeed
+            SentBytes = $sentBytes
+            TotalMB = $totalUp
+        }
+    }
+    $json = ConvertTo-Json $result;
+    Write-Host $json;
+}
+`); // DO NOT REMOVE LAST LINE BREAK!
+
+      this.networkChecker.streams.stdout.on('data', (data: string) => {
+        if (!data || data.includes('EOI') || !data.trim())
+          return;
+
+        this.zone.run(() => this.networkStatus = JSON.parse(data));
+        this.logs.appendLog(data);
+      });
+      this.networkChecker.invoke().catch(err => {
+        console.error('err', err);
+        this.logs.appendLog('Error while checking network usage: ' + JSON.stringify(err));
+      });
   }
 
-  test() {
-    // this.events.subscribe('droplet:ready', (data) => {
-    //   console.log('droplet:ready data: ', data);
-    //   this.logs.appendLog('Droplet is ready for connections.');
-    //   // TODO: handle droplet ready to connect
-    // });
-
-    // this.vpsService.checkDropletReady();
+  getDownloadSpeed(): string {
+    return this.getFormattedUnit(this.networkStatus.Download.Speed, 'KB/s');
   }
+  getUploadSpeed(): string {
+    return this.getFormattedUnit(this.networkStatus.Upload.Speed, 'KB/s');
+  }
+  getTotalDownload(): string {
+    return this.getFormattedUnit(this.networkStatus.Download.TotalMB, 'MB');
+  }
+  getTotalUpload(): string {
+    return this.getFormattedUnit(this.networkStatus.Upload.TotalMB, 'MB');
+  }
+
+  getFormattedUnit(rawSpeed, rawUnit = 'KB'): string {
+    let upperUnit;
+    if (rawUnit.includes('s'))
+      upperUnit = (rawUnit === 'KB/s') ? 'MB/s' : 'GB/s';
+    else
+      upperUnit = (rawUnit === 'KB') ? 'MB' : 'GB';
+
+    if (rawSpeed > 1000)
+      return (rawSpeed / 1000).toFixed(0) + ' ' + upperUnit;
+    else
+      return rawSpeed.toFixed(0) + ' ' + rawUnit;
+  }
+
+  stopNetworkMonitor() {
+    this.networkChecker.dispose().catch(err => {
+      this.logs.appendLog('Error while stopping network monitor: ' + JSON.stringify(err));
+    });
+  }
+
 }
