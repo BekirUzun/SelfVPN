@@ -89,13 +89,13 @@ runcmd:
   getDropletIP(): string {
     if (this.droplet && this.droplet.networks.v4.length > 0)
       return this.droplet.networks.v4[0].ip_address;
-    return '';
+    return 'Unknown';
   }
 
   getDropletRegion(): string {
     if (this.droplet)
       return this.droplet.region.name;
-    return '';
+    return 'Unknown';
   }
 
   checkDroplets(): Promise<void> {

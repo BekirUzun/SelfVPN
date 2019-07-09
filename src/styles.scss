@@ -10,10 +10,15 @@ html, body {
   color: white;
   background-color: #2a2a2a;
   height: 100%;
+  user-select: none;
 }
 
 :focus {
   outline: 0;
+}
+
+.selectable {
+  user-select: text;
 }
 
 #header {
@@ -130,7 +135,7 @@ textarea {
   font-weight: 600;
 }
 
-a.power-button {
+.power-button {
   font-size: 32pt;
   display: flex;
   align-items: center;
@@ -144,70 +149,69 @@ a.power-button {
   margin: 0 auto;
   top: 14px;
   background-color: #fff;
-  /* transition: top 0.1s ease; */
-}
 
-a.power-button svg {
-  fill: #222b45;
-  width: 55px;
-  margin: 0 auto;
-  transition: fill 350ms ease;
-}
+  &::before {
+    content: "";
+    width: 80px;
+    height: 80px;
+    display: block;
+    z-index: -2;
+    position: absolute;
+    background-color: rgb(26, 27, 29);
+    left: -5px;
+    top: -5px;
+    border-radius: 40px;
+    box-shadow: 0px 1px 0px 0px rgba(250, 250, 250, 0.1), inset 0px 1px 2px rgba(0, 0, 0, 0.5);
+  }
 
-a.power-button svg path {
-  transition: transform .3s ease;
-  transform-origin: 39% 40%;
-}
+  &:active {
+    box-shadow: 0px 0px 0px 0px rgb(34, 34, 34), 0px 3px 7px 0px rgb(17, 17, 17), inset 0px 1px 1px 0px rgba(250, 250, 250, 0.2), inset 0px -10px 35px 5px rgba(0, 0, 0, 0.5);
+    background-color: #ddd;
+  }
 
-a.power-button.on svg #circle {
-  transform: rotate(180deg);
-}
+  &.on {
+    box-shadow: 0px 0px 0px 0px rgb(34, 34, 34), 0px 3px 7px 0px rgb(17, 17, 17), inset 0px 1px 1px 0px rgba(250, 250, 250, 0.2), inset 0px -10px 35px 5px rgba(0, 0, 0, 0.5);
+    text-shadow: 0px 0px 3px rgb(250, 250, 250);
+  }
 
-a.power-button.on svg #line {
-  transform: translateY(13px);
-}
+  &.pressed svg {
+    transform: scaleY(-1);
+  }
 
-a.power-button::before {
-  content: "";
-  width: 80px;
-  height: 80px;
-  display: block;
-  z-index: -2;
-  position: absolute;
-  background-color: rgb(26, 27, 29);
-  left: -5px;
-  top: -5px;
-  border-radius: 40px;
-  box-shadow: 0px 1px 0px 0px rgba(250, 250, 250, 0.1), inset 0px 1px 2px rgba(0, 0, 0, 0.5);
-}
+  &.connected svg {
+    fill: #36f;
 
-a.power-button:active {
-  box-shadow: 0px 0px 0px 0px rgb(34, 34, 34), 0px 3px 7px 0px rgb(17, 17, 17), inset 0px 1px 1px 0px rgba(250, 250, 250, 0.2), inset 0px -10px 35px 5px rgba(0, 0, 0, 0.5);
-  background-color: #ddd;
-}
+    g path {
+      filter: drop-shadow(0 0 1px #36f);
+    }
+  }
 
-a.power-button.on {
-  box-shadow: 0px 0px 0px 0px rgb(34, 34, 34), 0px 3px 7px 0px rgb(17, 17, 17), inset 0px 1px 1px 0px rgba(250, 250, 250, 0.2), inset 0px -10px 35px 5px rgba(0, 0, 0, 0.5);
-  text-shadow: 0px 0px 3px rgb(250, 250, 250);
-}
+  &:active::before,
+  &.on::before {
+    top: -5px;
+    background-color: rgb(26, 27, 29);
+    box-shadow: 0px 1px 0px 0px rgba(250, 250, 250, 0.1), inset 0px 1px 2px rgba(0, 0, 0, 0.5);
+  }
 
-a.power-button.pressed svg {
-  transform: scaleY(-1);
-}
+  svg {
+    fill: #222b45;
+    width: 55px;
+    margin: 0 auto;
+    transition: fill 350ms ease;
 
-a.power-button.connected svg {
-  fill: #36f;
-}
+    path {
+      transition: transform .3s ease;
+      transform-origin: 39% 40%;
+    }
 
-a.power-button.connected svg g path {
-  filter: drop-shadow(0 0 1px #36f);
-}
+    #circle {
+      transform: rotate(180deg);
+    }
 
-a.power-button:active::before,
-a.power-button.on::before {
-  top: -5px;
-  background-color: rgb(26, 27, 29);
-  box-shadow: 0px 1px 0px 0px rgba(250, 250, 250, 0.1), inset 0px 1px 2px rgba(0, 0, 0, 0.5);
+    #line {
+      transform: translateY(13px);
+    }
+  }
 }
 
 .dot-spinner {
@@ -221,15 +225,17 @@ a.power-button.on::before {
   animation-duration: 1500ms;
   animation-iteration-count: infinite;
   animation-timing-function: cubic-bezier(0.445, 0.05, 0.55, 0.95);
-}
-.dot-spinner.animate {
-  animation-name: spin;
-}
-.dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background-color: #598bff;
+
+  .animate {
+    animation-name: spin;
+  }
+
+  .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: #598bff;
+  }
 }
 
 @keyframes spin {
