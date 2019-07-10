@@ -127,13 +127,11 @@ textarea {
 
   .label {
     font-size: 14px;
-    color: rgba(255, 255, 255, 0.5);
     position: absolute;
     background: #151a30;
     left: calc(50% - 12px);
     width: 24px;
     text-align: center;
-    transition: color 0.3s ease;
 
     .text {
       -webkit-background-clip: text;
@@ -142,6 +140,10 @@ textarea {
       background-image: url('./assets/circles_bg.png');
       background-size: 600% 100%;
       background-position: 50%;
+      font-weight: 400;
+      font-family: "Trebuchet MS", Helvetica, sans-serif;
+      opacity: 0.6;
+      transition: opacity 0.2s ease;
     }
 
     &.top {
@@ -162,9 +164,9 @@ textarea {
       }
     }
 
-    &.selected {
-      color: #fff;
-      font-weight: 600;
+    &.selected .text{
+      font-weight: 900;
+      opacity: 1;
     }
 
 
