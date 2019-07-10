@@ -47,7 +47,9 @@
   <div class="dot-spinner {{ powerOn && !vpnConnected ? 'animate' : '' }}">
     <div class="dot"></div>
   </div>
-  <span class="label top {{ !powerOn ? 'selected' : '' }}">off</span>
+  <div class="label top {{ !powerOn ? 'selected' : '' }}">
+    <span class="text {{ isTopAnimating ? 'animate' : '' }}">off</span>
+  </div>
   <a (click)="connect()" class="power-button {{ powerOn ? 'on' : '' }} {{ vpnConnected ? 'connected' : '' }}" id="button">
     <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
   viewBox="0 0 38 38" xml:space="preserve">
@@ -57,7 +59,9 @@
       </g>
     </svg>
   </a>
-  <span class="label bottom {{ powerOn ? 'selected' : '' }}">on</span>
+  <div class="label bottom {{ powerOn ? 'selected' : '' }}">
+    <span class="text {{ isBottomAnimating ? 'animate' : '' }}">on</span>
+  </div>
 </div>
 
 <div class="row mb-3">

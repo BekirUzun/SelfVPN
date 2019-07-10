@@ -21,6 +21,7 @@ export class HomeComponent implements OnInit {
   selectedRegion = 'ams3';
   powerOn = false;
   networkChecker;
+  connectAnimInterval;
   networkStatus = {
     Upload: {
       SentBytes: 0,
@@ -33,6 +34,8 @@ export class HomeComponent implements OnInit {
       ReceivedBytes: 0
     }
   };
+  isTopAnimating: boolean;
+  isBottomAnimating: boolean;
 
   constructor(
     public vpsService: VpsService,
@@ -170,6 +173,7 @@ Catch
       });
 
     } else {
+      this.startConnectingAnimation();
       let ps = new powershell({
         executionPolicy: 'Bypass',
         noProfile: true
@@ -214,6 +218,7 @@ if($vpn.ConnectionStatus -eq "Disconnected"){
         console.log('powershell closed, output: ', output);
         if (output.includes('connected')) {
           this.vpnConnected = true;
+          this.stopConnectingAnimation();
           this.startNetworkMonitor();
           this.logs.appendLog('Connected to vpn on ip: ' + this.vpsService.getDropletIP());
         }
@@ -227,6 +232,36 @@ if($vpn.ConnectionStatus -eq "Disconnected"){
       });
     }
   }
+
+  startConnectingAnimation() {
+    this.connectingAnimationHandler();
+    this.connectAnimInterval = setInterval(() => {
+      this.connectingAnimationHandler();
+    }, 1500);
+  }
+
+  stopConnectingAnimation() {
+    clearInterval(this.connectAnimInterval);
+    this.isTopAnimating = false;
+    this.isBottomAnimating = false;
+  }
+  connectingAnimationHandler() {
+    if (this.vpnConnected)
+      this.stopConnectingAnimation();
+
+    this.isTopAnimating = true;
+    setTimeout(() => {
+      this.isTopAnimating = false;
+    }, 1000);
+
+    setTimeout(() => {
+      this.isBottomAnimating = true;
+      setTimeout(() => {
+        this.isBottomAnimating = false;
+      }, 1000);
+    }, 750);
+  }
+
 
   startNetworkMonitor() {
     this.networkChecker = new powershell({

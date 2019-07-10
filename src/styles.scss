@@ -44,8 +44,12 @@ html, body {
 
 #footer {
   nav {
-    justify-content: flex-end;
-    padding: 0.75rem 1rem;
+    justify-content: space-between;
+    padding: 0;
+
+    span {
+      padding: 0.75rem 1.25rem;
+    }
   }
 }
 
@@ -57,11 +61,15 @@ html, body {
 }
 
 .custom-window {
+  max-height: 90%;
+  overflow: overlay;
+
   nb-card-header {
     padding: .5rem .75rem;
-
+    
     .buttons {
       width: unset !important;
+      -webkit-app-region: no-drag;
     }
     button:nth-child(1), button:nth-child(2){
       display: none;
@@ -116,27 +124,53 @@ textarea {
   bottom: calc(50% - 84px);
   left: calc(50% - 50px);
   z-index: 500;
-}
 
-.circle .label {
-  font-size: 14px;
-  color: rgba(255, 255, 255, 0.5);
-  position: absolute;
-  background: #151a30;
-  left: calc(50% - 12px);
-  width: 24px;
-  text-align: center;
-  transition: color 0.3s ease;
-}
-.circle .label.top {
-  top: -8px;
-}
-.circle .label.bottom {
-  bottom: -8px;
-}
-.circle .label.selected {
-  color: #fff;
-  font-weight: 600;
+  .label {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.5);
+    position: absolute;
+    background: #151a30;
+    left: calc(50% - 12px);
+    width: 24px;
+    text-align: center;
+    transition: color 0.3s ease;
+
+    .text {
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-image: url('./assets/circles_bg.png');
+      background-size: 600% 100%;
+      background-position: 50%;
+    }
+
+    &.top {
+      top: -8px;
+      
+      .text.animate {
+        transition: background-position 0.5s ease;
+        background-position: 0%;
+      }
+    }
+
+    &.bottom {
+      bottom: -8px;
+
+      .text.animate {
+        transition: background-position 0.5s ease;
+        background-position: 100%;
+      }
+    }
+
+    &.selected {
+      color: #fff;
+      font-weight: 600;
+    }
+
+
+
+
+  }
 }
 
 .power-button {
@@ -229,6 +263,7 @@ textarea {
   height: 110px;
   transform-origin: 50% 50%;
   animation-duration: 1500ms;
+  animation-delay: 0.2s;
   animation-iteration-count: infinite;
   animation-timing-function: cubic-bezier(0.445, 0.05, 0.55, 0.95);
 

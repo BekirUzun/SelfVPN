@@ -23,7 +23,7 @@ import { SettingsModule } from './pages/settings/settings.module';
 import { NavComponent } from './components/nav/nav.component';
 
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { NbThemeModule, NbLayoutModule, NbWindowModule, NbSpinnerModule } from '@nebular/theme';
+import { NbThemeModule, NbLayoutModule, NbWindowModule, NbSpinnerModule, NbButtonComponent, NbButtonModule, NbIconModule } from '@nebular/theme';
 import { NbEvaIconsModule } from '@nebular/eva-icons';
 import { NavModule } from './components/nav/nav.module';
 
@@ -66,6 +66,8 @@ export function HttpLoaderFactory(http: HttpClient) {
       closeOnBackdropClick: true
     }),
     NbSpinnerModule,
+    NbButtonModule,
+    NbIconModule
   ],
   providers: [ElectronService],
   bootstrap: [AppComponent]

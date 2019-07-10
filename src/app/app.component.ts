@@ -5,6 +5,7 @@ import { AppConfig } from '../environments/environment';
 import { state } from './shared/state';
 import { NbWindowService, NbWindowRef } from '@nebular/theme';
 import { LogDisplayComponent } from './components/log-display/log-display.component';
+import { SettingsComponent } from './pages/settings/settings.component';
 
 @Component({
   selector: 'app-root',
@@ -32,6 +33,20 @@ export class AppComponent {
 
   isLoading() {
     return state.isHomeLoading;
+  }
+
+  openSettings() {
+    this.windowRef = this.windowService.open(SettingsComponent, {
+      title: `Settings`,
+      closeOnBackdropClick: true,
+      closeOnEsc: true,
+      windowClass: 'custom-window',
+    });
+
+    this.windowRef.onClose.subscribe(() => {
+      this.windowRef.componentRef.destroy();
+      this.windowRef = undefined;
+    });
   }
 
   showLogs() {
