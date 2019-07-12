@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { NbWindowRef, NbWindowService } from '@nebular/theme';
 import { SettingsComponent } from '../../pages/settings/settings.component';
+import { remote } from 'electron';
 
 @Component({
   selector: 'app-nav',
@@ -13,5 +14,9 @@ export class NavComponent {
 
   closeApp() {
     window.close();
+  }
+
+  minimizeApp() {
+    remote.BrowserWindow.getFocusedWindow().minimize();
   }
 }
