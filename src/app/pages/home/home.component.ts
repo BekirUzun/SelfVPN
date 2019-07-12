@@ -16,6 +16,7 @@ export class HomeComponent implements OnInit {
 
   vpnConnected = false;
   isBooting = false;
+  serverReady = false;
   currentKey: string;
   connectSpinner = false;
   selectedRegion = 'ams3';
@@ -50,6 +51,12 @@ export class HomeComponent implements OnInit {
     this.selectedRegion = this.config.get(ConfigKeys.region);
 
     this.vpsService.checkDroplets().then(() => {
+
+      // TODO: make a request to droplet (needs server to implemented differently)
+      if (this.vpsService.getDropletIP() !== 'Unknown') {
+        this.serverReady = true;
+      }
+
       // TODO: make droplet and connection checking parallel
       let ps = new powershell({
         executionPolicy: 'Bypass',
@@ -118,6 +125,7 @@ Catch
         this.logs.appendLog('Error while destroying droplet: ' + JSON.stringify(err));
       }).finally(() => {
         this.isBooting = false;
+        this.serverReady = false;
       });
     } else {
       this.config.set(ConfigKeys.region, this.selectedRegion);
@@ -138,14 +146,14 @@ Catch
       this.events.subscribe('droplet:ready', (data) => {
         console.log('droplet:ready data: ', data);
         this.logs.appendLog('Droplet is ready for connections.');
-        // TODO: handle droplet ready to connect
+        this.serverReady = true;
       });
 
     }
   }
 
   connect() {
-    if (!this.isDropletRunning() || this.connectSpinner)
+    if (!this.isDropletRunning() || this.connectSpinner || !this.serverReady)
       return;
 
     this.powerOn = !this.powerOn;
