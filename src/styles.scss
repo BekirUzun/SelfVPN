@@ -168,10 +168,6 @@ textarea {
       font-weight: 900;
       opacity: 1;
     }
-
-
-
-
   }
 }
 
@@ -369,6 +365,10 @@ textarea {
       right: -70px;
       top: 0;
     }
+
+    .content .border {
+      border-top-right-radius: 0;
+    }
   }
 
   &.top-right {
@@ -385,6 +385,7 @@ textarea {
 
     .content .border {
       text-align: right;
+      border-top-left-radius: 0;
     }
   }
 
@@ -398,6 +399,10 @@ textarea {
     .circle-border {
       right: -70px;
       bottom: 0;
+    }
+
+    .content .border {
+      border-bottom-right-radius: 0;
     }
   }
 
@@ -415,6 +420,7 @@ textarea {
 
     .content .border {
       text-align: right;
+      border-bottom-left-radius: 0;
     }
   }
 

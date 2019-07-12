@@ -25,7 +25,7 @@ export class ConfigService {
       const userDataPath = (electron.app || electron.remote.app).getPath('userData');
       this.path = path.join(userDataPath, 'user-preferences.json');
       console.log(this.path);
-      this.initData();
+      this.loadData();
   }
 
   public get(key: ConfigKeys) {
@@ -40,13 +40,14 @@ export class ConfigService {
       fs.writeFileSync(this.path, JSON.stringify(this.data));
   }
 
-  private initData() {
+  private loadData() {
       try {
           this.data = JSON.parse(fs.readFileSync(this.path).toString());
       } catch (err) {
           console.log(err);
+          // initialize new data
           this.data = {
-              [ConfigKeys.apiKey]: '',
+            [ConfigKeys.apiKey]: '',
           };
           this.regenerateKeys();
           fs.writeFileSync(this.path, JSON.stringify(this.data));
@@ -83,7 +84,7 @@ export class ConfigService {
        }
   }
 
-  private generateString(len) {
+  private generateString(len: number) {
       return randomString({
           length: len,
           characters: 'ABCDEFGHIJKLMNOPRSTUVYZXWabcdefghijklmoprstuvyz0123456789'

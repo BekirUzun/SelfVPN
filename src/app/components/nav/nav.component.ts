@@ -1,6 +1,4 @@
 import { Component } from '@angular/core';
-import { NbWindowRef, NbWindowService } from '@nebular/theme';
-import { SettingsComponent } from '../../pages/settings/settings.component';
 import { remote } from 'electron';
 
 @Component({
@@ -9,8 +7,7 @@ import { remote } from 'electron';
   styleUrls: ['./nav.component.scss']
 })
 export class NavComponent {
-  windowRef: NbWindowRef;
-  constructor(private windowService: NbWindowService) {}
+  constructor() {}
 
   closeApp() {
     window.close();

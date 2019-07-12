@@ -1,23 +1,24 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ElectronService } from './providers/electron.service';
 import { TranslateService } from '@ngx-translate/core';
 import { AppConfig } from '../environments/environment';
 import { state } from './shared/state';
-import { NbWindowService, NbWindowRef } from '@nebular/theme';
+import { NbWindowService } from '@nebular/theme';
 import { LogDisplayComponent } from './components/log-display/log-display.component';
 import { SettingsComponent } from './pages/settings/settings.component';
+import { ConfigService, ConfigKeys } from './providers/config-service/config.service';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
-export class AppComponent {
-  windowRef: NbWindowRef;
+export class AppComponent implements OnInit {
 
   constructor(public electronService: ElectronService,
     private translate: TranslateService,
-    private windowService: NbWindowService) {
+    private windowService: NbWindowService,
+    public config: ConfigService) {
 
     translate.setDefaultLang('en');
     console.log('AppConfig', AppConfig);
@@ -31,35 +32,31 @@ export class AppComponent {
     }
   }
 
+  ngOnInit() {
+    if (!this.config.get(ConfigKeys.apiKey)) {
+      this.openSettings();
+    }
+  }
+
   isLoading() {
     return state.isHomeLoading;
   }
 
   openSettings() {
-    this.windowRef = this.windowService.open(SettingsComponent, {
+    this.windowService.open(SettingsComponent, {
       title: `Settings`,
       closeOnBackdropClick: true,
       closeOnEsc: true,
       windowClass: 'custom-window',
     });
-
-    this.windowRef.onClose.subscribe(() => {
-      this.windowRef.componentRef.destroy();
-      this.windowRef = undefined;
-    });
   }
 
   showLogs() {
-    this.windowRef = this.windowService.open(LogDisplayComponent, {
+    this.windowService.open(LogDisplayComponent, {
       title: `Logs`,
       closeOnBackdropClick: true,
       closeOnEsc: true,
       windowClass: 'custom-window',
-    });
-
-    this.windowRef.onClose.subscribe(() => {
-      this.windowRef.componentRef.destroy();
-      this.windowRef = undefined;
     });
   }
 }

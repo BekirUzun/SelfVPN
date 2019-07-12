@@ -46,24 +46,24 @@ export class HomeComponent implements OnInit {
     public zone: NgZone) { }
 
   ngOnInit() {
-    this.logs.appendLog('home init');
-
     this.selectedRegion = this.config.get(ConfigKeys.region);
 
-    this.vpsService.checkDroplets().then(() => {
+    if (this.config.get(ConfigKeys.apiKey)) {
+      this.vpsService.checkDroplets().then(() => {
 
-      // TODO: make a request to droplet (needs server to implemented differently)
-      if (this.vpsService.getDropletIP() !== 'Unknown') {
-        this.serverReady = true;
-      }
-
-      // TODO: make droplet and connection checking parallel
-      let ps = new powershell({
-        executionPolicy: 'Bypass',
-        noProfile: true
+        // TODO: make a request to droplet (needs server to implemented differently)
+        if (this.vpsService.getDropletIP() !== 'Unknown') {
+          this.serverReady = true;
+        }
       });
+    }
 
-      ps.addCommand(`
+    let ps = new powershell({
+      executionPolicy: 'Bypass',
+      noProfile: true
+    });
+
+    ps.addCommand(`
 $vpnName = "SelfVPN";
 
 Try
@@ -76,21 +76,19 @@ Catch
   Write-Host "Disconnected";
 }
 `);
-      ps.invoke().then((output: string) => {
-        if (output.includes('Connected')) {
-          this.vpnConnected = true;
-          this.powerOn = true;
-          this.startNetworkMonitor();
-          this.logs.appendLog('VPN already connected');
-        }
-      })
-      .catch(err => {
-        console.error('err', err);
-        this.logs.appendLog('Error while checking VPN connection: ' + JSON.stringify(err));
-      }).finally(() => {
-        ps.dispose();
-        state.isHomeLoading = false;
-      });
+    ps.invoke().then((output: string) => {
+      if (output.includes('Connected')) {
+        this.vpnConnected = true;
+        this.powerOn = true;
+        this.startNetworkMonitor();
+        this.logs.appendLog('VPN already connected');
+      }
+    }).catch(err => {
+      console.error('err', err);
+      this.logs.appendLog('Error while checking VPN connection: ' + JSON.stringify(err));
+    }).finally(() => {
+      ps.dispose();
+      state.isHomeLoading = false;
     });
   }
 
@@ -132,7 +130,7 @@ Catch
       this.isBooting = true;
       this.vpsService.createDroplet().catch(err => {
         // TODO: better user message displaying
-        alert('An error ocurred while creating droplet');
+        alert('An error ocurred while creating droplet: ' + err.message);
         this.logs.appendLog('Error while creating droplet: ' + JSON.stringify(err));
       }).finally(() => {
         this.isBooting = false;

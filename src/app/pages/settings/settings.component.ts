@@ -26,9 +26,6 @@ export class SettingsComponent implements OnInit {
   save() {
     state.isHomeLoading = true;
 
-    this.config.set(ConfigKeys.username, this.username);
-    this.config.set(ConfigKeys.password, this.password);
-    this.config.set(ConfigKeys.psk, this.psk);
     this.config.set(ConfigKeys.sshId, this.sshId);
 
     this.vpsService.updateApiKey(this.apiKey).then(() => {
@@ -48,18 +45,7 @@ export class SettingsComponent implements OnInit {
 
   loadConfig() {
     this.apiKey = this.config.get(ConfigKeys.apiKey);
-    this.username = this.config.get(ConfigKeys.username);
-    this.password = this.config.get(ConfigKeys.password);
-    this.psk = this.config.get(ConfigKeys.psk);
     this.sshId = this.config.get(ConfigKeys.sshId);
   }
 
-  regenerateKeys() {
-    this.connected = true;
-    setTimeout(() => {
-      this.connected = false;
-    }, 5000);
-    this.config.regenerateKeys();
-    this.loadConfig();
-  }
 }

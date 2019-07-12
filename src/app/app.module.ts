@@ -20,16 +20,14 @@ import { AppComponent } from './app.component';
 
 import { HomeModule } from './pages/home/home.module';
 import { SettingsModule } from './pages/settings/settings.module';
-import { NavComponent } from './components/nav/nav.component';
 
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { NbThemeModule, NbLayoutModule, NbWindowModule, NbSpinnerModule, NbButtonComponent, NbButtonModule, NbIconModule } from '@nebular/theme';
+import { NbThemeModule, NbLayoutModule, NbWindowModule, NbSpinnerModule, NbButtonModule, NbIconModule } from '@nebular/theme';
 import { NbEvaIconsModule } from '@nebular/eva-icons';
 import { NavModule } from './components/nav/nav.module';
 
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { LogDisplayModule } from './components/log-display/log-display.module';
-import { LogDisplayComponent } from './components/log-display/log-display.component';
 
 // AoT requires an exported function for factories
 export function HttpLoaderFactory(http: HttpClient) {
