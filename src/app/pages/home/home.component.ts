@@ -1,10 +1,11 @@
 import { Component, OnInit, NgZone } from '@angular/core';
-import * as powershell from 'node-powershell';
 import { state } from '../../shared/state';
 import { VpsService } from '../../providers/vps-service/vps.service';
 import { Events } from '../../shared/events';
 import { LoggerService } from '../../providers/logger-service/logger.service';
 import { ConfigService, ConfigKeys } from '../../providers/config-service/config.service';
+import { ClientService } from '../../providers/client-service/client.service';
+import { NetworkStatus } from '../../models/network';
 
 @Component({
   selector: 'app-home',
@@ -23,18 +24,7 @@ export class HomeComponent implements OnInit {
   powerOn = false;
   networkChecker;
   connectAnimInterval;
-  networkStatus = {
-    Upload: {
-      SentBytes: 0,
-      TotalMB: 0,
-      Speed: 0
-    },
-    Download: {
-      TotalMB: 0,
-      Speed: 0,
-      ReceivedBytes: 0
-    }
-  };
+  networkStatus = new NetworkStatus();
   isTopAnimating: boolean;
   isBottomAnimating: boolean;
 
@@ -43,7 +33,8 @@ export class HomeComponent implements OnInit {
     public events: Events,
     public logs: LoggerService,
     public config: ConfigService,
-    public zone: NgZone) { }
+    public zone: NgZone,
+    public clientService: ClientService) { }
 
   ngOnInit() {
     this.selectedRegion = this.config.get(ConfigKeys.region);
@@ -58,50 +49,22 @@ export class HomeComponent implements OnInit {
       });
     }
 
-    let ps = new powershell({
-      executionPolicy: 'Bypass',
-      noProfile: true
-    });
-
-    ps.addCommand(`
-$vpnName = "SelfVPN";
-
-Try
-{
-  $vpn = Get-VpnConnection -Name $vpnName -ErrorAction Stop;
-  Write-Host $vpn.ConnectionStatus;
-}
-Catch
-{
-  Write-Host "Disconnected";
-}
-`);
-    ps.invoke().then((output: string) => {
-      if (output.includes('Connected')) {
+    this.clientService.isConnected().then(isConnected => {
+      if (isConnected) {
         this.vpnConnected = true;
         this.powerOn = true;
         this.startNetworkMonitor();
         this.logs.appendLog('VPN already connected');
       }
     }).catch(err => {
-      console.error('err', err);
       this.logs.appendLog('Error while checking VPN connection: ' + JSON.stringify(err));
     }).finally(() => {
-      ps.dispose();
       state.isHomeLoading = false;
     });
   }
 
   isDropletRunning(): boolean {
     return this.vpsService.isDropletRunning();
-  }
-
-  getDropletIP(): string {
-    return this.vpsService.getDropletIP();
-  }
-
-  getDropletRegion(): string {
-    return this.vpsService.getDropletRegion();
   }
 
   selectChanged() {
@@ -155,17 +118,10 @@ Catch
       return;
 
     this.powerOn = !this.powerOn;
-
     this.connectSpinner = true;
-    if (this.vpnConnected) {
-      let ps = new powershell({
-        executionPolicy: 'Bypass',
-        noProfile: true
-      });
 
-      ps.addCommand('rasdial "SelfVPN" /disconnect ');
-      ps.invoke().then((output: string) => {
-        console.log(output);
+    if (this.vpnConnected) {
+      this.clientService.disconnect().then((output: string) => {
         this.vpnConnected = false;
         this.powerOn = false;
         this.logs.appendLog('Disconnected from VPN.');
@@ -175,66 +131,22 @@ Catch
       }).finally(() => {
         this.connectSpinner = false;
         this.stopNetworkMonitor();
-
       });
 
     } else {
       this.startConnectingAnimation();
-      let ps = new powershell({
-        executionPolicy: 'Bypass',
-        noProfile: true
-      });
-
-      // Load the gun
-      ps.addCommand(`
-$vpnName = "SelfVPN";
-$vpnServer = "${this.vpsService.getDropletIP()}";
-$vpnUsername = "${this.config.get(ConfigKeys.username)}"
-$vpnPassword = "${this.config.get(ConfigKeys.password)}";
-$vpnPsk = "${this.config.get(ConfigKeys.psk)}";
-
-Try
-{
-  Remove-VpnConnection -Name $vpnName -Force -PassThru | Out-Null;
-  Write-Host "Removing old vpn profile...";
-}
-Catch { }
-Write-Host "Adding new vpn profile...";
-Add-VpnConnection -Name $vpnName -ServerAddress $vpnServer -L2tpPsk $vpnPsk -TunnelType L2tp -EncryptionLevel Required -AuthenticationMethod Chap,MSChapv2 -Force -PassThru | Out-Null;
-
-$vpn = Get-VpnConnection -Name $vpnName;
-
-if($vpn.ConnectionStatus -eq "Disconnected"){
-  Write-Host "Starting rasdial...";
-  rasdial $vpnName $vpnUsername $vpnPassword;
-} else {
-  Write-Host "Vpn already connected.";
-}
-`); // DO NOT REMOVE LAST LINE BREAK!
-
-      ps.streams.stdout.on('data', (data: string) => {
-        if (!data || data.includes('EOI') || !data.trim())
-          return;
-
-        this.logs.appendLog(data);
-      });
-
-      // Pull the Trigger
-      ps.invoke().then((output: string) => {
-        console.log('powershell closed, output: ', output);
+      this.clientService.connect().then((output: string) => {
         if (output.includes('connected')) {
           this.vpnConnected = true;
           this.stopConnectingAnimation();
           this.startNetworkMonitor();
           this.logs.appendLog('Connected to vpn on ip: ' + this.vpsService.getDropletIP());
         }
-      })
-      .catch(err => {
+      }).catch(err => {
         console.error('err', err);
         this.logs.appendLog('Error while connecting vpn: ' + JSON.stringify(err));
       }).finally(() => {
         this.connectSpinner = false;
-        ps.dispose();
       });
     }
   }
@@ -251,6 +163,7 @@ if($vpn.ConnectionStatus -eq "Disconnected"){
     this.isTopAnimating = false;
     this.isBottomAnimating = false;
   }
+
   connectingAnimationHandler() {
     if (this.vpnConnected)
       this.stopConnectingAnimation();
@@ -268,113 +181,19 @@ if($vpn.ConnectionStatus -eq "Disconnected"){
     }, 750);
   }
 
-
   startNetworkMonitor() {
-    this.networkChecker = new powershell({
-      executionPolicy: 'Bypass',
-      noProfile: true
+    this.clientService.startNetworkMonitor((output: string) => {
+      if (!output || !output.trim() || output.includes('EOI'))
+        return;
+      this.zone.run(() => {
+        this.networkStatus.update(JSON.parse(output));
+      });
     });
-
-    this.networkChecker.addCommand(`
-$totalDown = 0.0;
-$totalUp = 0.0;
-$lastRecv = 0;
-$lastSent = 0;
-$statsInit = Get-NetAdapterStatistics;
-$statsInit | ForEach-Object {
-    $lastRecv = $lastRecv + $_.ReceivedBytes;
-    $lastSent = $lastSent + $_.SentBytes;
-}
-
-while($true)
-{
-    Start-Sleep -s 1
-    $currRecv = 0;
-    $currSent = 0;
-    $stats = Get-NetAdapterStatistics;
-    $stats | ForEach-Object {
-        $currRecv += $_.ReceivedBytes;
-        $currSent += $_.SentBytes;
-    }
-
-    $recvBytes = $currRecv - $lastRecv;
-    $sentBytes = $currSent - $lastSent;
-
-    $totalDown += $recvBytes * 0.00000085;
-    $totalUp += $sentBytes * 0.00000085;
-
-    $downSpeed = $recvBytes * 0.00085;
-    $uploadSpeed = $sentBytes * 0.00085;
-    $lastRecv = $currRecv;
-    $lastSent = $currSent;
-
-    $result = @{
-        Download = @{
-            Speed = $downSpeed
-            ReceivedBytes = $recvBytes
-            TotalMB = $totalDown
-        }
-        Upload = @{
-            Speed = $uploadSpeed
-            SentBytes = $sentBytes
-            TotalMB = $totalUp
-        }
-    }
-    $json = ConvertTo-Json $result;
-    Write-Host $json;
-}
-`); // DO NOT REMOVE LAST LINE BREAK!
-
-      this.networkChecker.streams.stdout.on('data', (data: string) => {
-        if (!data || data.includes('EOI') || !data.trim())
-          return;
-        this.zone.run(() => {
-          console.log(data);
-          this.networkStatus = JSON.parse(data);
-        });
-        // this.logs.appendLog(data);
-      });
-      this.networkChecker.invoke().catch(err => {
-        console.error('err', err);
-        // this.logs.appendLog('Error while checking network usage: ' + JSON.stringify(err));
-      });
-  }
-
-  getDownloadSpeed(): string {
-    return this.getFormattedUnit(this.networkStatus.Download.Speed, 'KB/s');
-  }
-  getUploadSpeed(): string {
-    return this.getFormattedUnit(this.networkStatus.Upload.Speed, 'KB/s');
-  }
-  getTotalDownload(): string {
-    return this.getFormattedUnit(this.networkStatus.Download.TotalMB, 'MB');
-  }
-  getTotalUpload(): string {
-    return this.getFormattedUnit(this.networkStatus.Upload.TotalMB, 'MB');
-  }
-
-  getFormattedUnit(rawSpeed, rawUnit = 'KB'): string {
-    let upperUnit;
-    if (rawUnit.includes('s'))
-      upperUnit = (rawUnit === 'KB/s') ? 'MB/s' : 'GB/s';
-    else
-      upperUnit = (rawUnit === 'KB') ? 'MB' : 'GB';
-
-    if (rawSpeed > 1000)
-      return (rawSpeed / 1000).toFixed(0) + ' ' + upperUnit;
-    else
-      return rawSpeed.toFixed(0) + ' ' + rawUnit;
   }
 
   stopNetworkMonitor() {
-    this.networkStatus.Download.Speed = 0;
-    this.networkStatus.Download.TotalMB = 0;
-    this.networkStatus.Upload.Speed = 0;
-    this.networkStatus.Upload.TotalMB = 0;
-
-    const process = require('process');
-    process.kill(this.networkChecker.pid);
-    this.networkChecker = undefined;
+    this.networkStatus.reset();
+    this.clientService.stopNetworkMonitor();
   }
 
 }

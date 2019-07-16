@@ -22,7 +22,7 @@
       </div>
       <div class="content selectable">
         <div class="border">
-          {{ getDropletIP() }}
+          {{ vpsService.getDropletIP() }}
         </div>
         <div class="circle-border"> </div> 
       </div>
@@ -35,7 +35,7 @@
       </div>
       <div class="content">
         <div class="border">
-          {{ getDropletRegion() }}
+          {{ vpsService.getDropletRegion() }}
         </div>
         <div class="circle-border"> </div> 
       </div>
@@ -82,10 +82,10 @@
           </div>
           <div class="row">
             <div class="col-6"> 
-              {{ getDownloadSpeed() }}
+              {{ networkStatus.getDownloadSpeed() }}
             </div>
             <div class="col-6">
-              {{ getUploadSpeed() }}
+              {{ networkStatus.getUploadSpeed() }}
             </div>
           </div>
         </div>
@@ -111,10 +111,10 @@
           </div>
           <div class="row">
             <div class="col-6"> 
-              {{ getTotalDownload() }}
+              {{ networkStatus.getTotalDownload() }}
             </div>
             <div class="col-6">
-              {{ getTotalUpload() }}
+              {{ networkStatus.getTotalUpload() }}
             </div>
           </div>
         </div>
