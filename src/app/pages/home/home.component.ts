@@ -186,7 +186,12 @@ export class HomeComponent implements OnInit {
       if (!output || !output.trim() || output.includes('EOI'))
         return;
       this.zone.run(() => {
-        this.networkStatus.update(JSON.parse(output));
+        try {
+          let obj = JSON.parse(output);
+          this.networkStatus.update(obj);
+        } catch (err) {
+          console.error('error parsing json: ', output, 'err: ', err);
+        }
       });
     });
   }
