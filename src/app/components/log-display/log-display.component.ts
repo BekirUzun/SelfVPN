@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { LogMessage, LoggerService } from '../../providers/logger-service/logger.service';
+import { LoggerService } from '../../providers/logger-service/logger.service';
+import { LogMessage } from '../../models/log-message';
 
 @Component({
   selector: 'app-log-display',
@@ -8,17 +9,12 @@ import { LogMessage, LoggerService } from '../../providers/logger-service/logger
 })
 export class LogDisplayComponent implements OnInit {
 
-  isLogsHidden = false;
   logMessages: LogMessage[] = [];
 
   constructor(public logs: LoggerService) { }
 
   ngOnInit() {
-   this.logMessages = this.logs.getLogs();
-  }
-
-  toggleVisibility() {
-    this.isLogsHidden = !this.isLogsHidden;
+    this.logMessages = this.logs.getLogs();
   }
 
 }

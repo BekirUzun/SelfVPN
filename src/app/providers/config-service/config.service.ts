@@ -1,7 +1,5 @@
 import { Injectable } from '@angular/core';
 import * as electron from 'electron';
-import * as path from 'path';
-import * as fs from 'fs';
 import * as randomString from 'crypto-random-string';
 import * as Store from 'electron-store';
 

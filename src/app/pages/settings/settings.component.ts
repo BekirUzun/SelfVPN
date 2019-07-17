@@ -30,13 +30,13 @@ export class SettingsComponent implements OnInit {
 
     this.vpsService.updateApiKey(this.apiKey).then(() => {
       this.config.set(ConfigKeys.apiKey, this.apiKey);
-      alert('Settings saved!'); // TODO: better alert management
+      alert('Settings saved!'); // TODO: better user message displaying
     }).catch(err => {
       if (err.message) {
         alert(err.message);
         return;
       }
-      alert('Api key is invalid');
+      alert('Api key is invalid'); // TODO: better user message displaying
     }).finally(() => {
       state.isHomeLoading = false;
     });

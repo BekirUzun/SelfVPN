@@ -38,6 +38,7 @@ export class HomeComponent implements OnInit {
 
   ngOnInit() {
     this.selectedRegion = this.config.get(ConfigKeys.region);
+    this.logs.appendLog('hello');
 
     if (this.config.get(ConfigKeys.apiKey)) {
       this.vpsService.checkDroplets().then(() => {

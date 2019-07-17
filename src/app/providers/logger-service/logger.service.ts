@@ -1,9 +1,5 @@
 import { Injectable } from '@angular/core';
-
-export class LogMessage {
-  date: Date;
-  text: string;
-}
+import { LogMessage } from '../../models/log-message';
 
 @Injectable({
   providedIn: 'root'
@@ -14,12 +10,12 @@ export class LoggerService {
   constructor() { }
 
   public appendLog(messageText: string) {
-       // TODO: add persistent logs
-      console.log(messageText);
-      this.logMessages.push({date: new Date(), text: messageText});
+    // TODO: add persistent logs
+    console.log(messageText);
+    this.logMessages.push(new LogMessage(messageText));
   }
 
   getLogs(): LogMessage[] {
-      return this.logMessages;
+    return this.logMessages;
   }
 }

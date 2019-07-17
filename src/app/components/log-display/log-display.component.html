@@ -1,6 +1,6 @@
 <div class="scroll-area">
   <div class="message" *ngFor="let message of logMessages">
-    {{ message.text }}
+    [{{ message.getShortDate() }}] {{ message.text }}
   </div>
 </div>
 
