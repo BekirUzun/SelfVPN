@@ -38,7 +38,6 @@ export class HomeComponent implements OnInit {
 
   ngOnInit() {
     this.selectedRegion = this.config.get(ConfigKeys.region);
-    this.logs.appendLog('hello');
 
     if (this.config.get(ConfigKeys.apiKey)) {
       this.vpsService.checkDroplets().then(() => {
@@ -92,7 +91,7 @@ export class HomeComponent implements OnInit {
     } else {
       this.config.set(ConfigKeys.region, this.selectedRegion);
       this.isBooting = true;
-      this.vpsService.createDroplet().catch(err => {
+      this.vpsService.createDroplet().then().catch(err => {
         // TODO: better user message displaying
         alert('An error ocurred while creating droplet: ' + err.message);
         this.logs.appendLog('Error while creating droplet: ' + JSON.stringify(err));
@@ -110,7 +109,6 @@ export class HomeComponent implements OnInit {
         this.logs.appendLog('Droplet is ready for connections.');
         this.serverReady = true;
       });
-
     }
   }
 
@@ -133,7 +131,6 @@ export class HomeComponent implements OnInit {
         this.connectSpinner = false;
         this.stopNetworkMonitor();
       });
-
     } else {
       this.startConnectingAnimation();
       this.clientService.connect().then((output: string) => {

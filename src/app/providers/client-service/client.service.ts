@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import * as powershell from 'node-powershell';
 import { VpsService } from '../../providers/vps-service/vps.service';
 import { ConfigService, ConfigKeys } from '../../providers/config-service/config.service';
+import { LoggerService } from '../logger-service/logger.service';
 
 @Injectable({
   providedIn: 'root'
@@ -11,9 +12,10 @@ export class ClientService {
 
   networkChecker: powershell;
 
-  constructor(public vpsService: VpsService, public config: ConfigService) { }
+  constructor(public vpsService: VpsService, public config: ConfigService, public logs: LoggerService) { }
 
   connect(): Promise<any> {
+    this.logs.appendLog('Connecting to VPN...');
     let ps = new powershell({
       executionPolicy: 'Bypass',
       noProfile: true
@@ -54,6 +56,7 @@ if($vpn.ConnectionStatus -eq "Disconnected"){
   }
 
   disconnect(): Promise<any> {
+    this.logs.appendLog('Disconnecting from VPN...');
     let ps = new powershell({
       executionPolicy: 'Bypass',
       noProfile: true
@@ -66,6 +69,7 @@ if($vpn.ConnectionStatus -eq "Disconnected"){
   }
 
   isConnected(): Promise<boolean> {
+    this.logs.appendLog('Checking VPN connection...');
     let ps = new powershell({
       executionPolicy: 'Bypass',
       noProfile: true
@@ -91,6 +95,7 @@ Catch
   }
 
   startNetworkMonitor(outputHandler: (output: string) => void): Promise<any> {
+    this.logs.appendLog('Starting network monitoring...');
     this.networkChecker = new powershell({
       executionPolicy: 'Bypass',
       noProfile: true

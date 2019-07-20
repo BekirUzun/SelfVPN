@@ -21,6 +21,7 @@ export class VpsService {
   }
 
   createDroplet(): Promise<any> {
+    this.logs.appendLog('Creating new droplet...');
     let newDroplet = {
       name: 'SelfVPN',
       region: this.config.get(ConfigKeys.region),
@@ -51,11 +52,14 @@ runcmd:
     return this.api.dropletsCreate(newDroplet).then(resp => {
       this.droplet = resp.body.droplet;
       this._isDropletRunning = true;
+      this.logs.appendLog('Droplet created.');
       this.checkDropletBooted();
     });
   }
 
   destroyDroplet(): Promise<void> {
+    this.logs.appendLog('Destroying droplet...');
+
     return new Promise<any>(async(resolve, reject) => {
       if (!this.droplet && !this.droplet.id && this.droplet.id < 1)
         reject();
@@ -64,9 +68,10 @@ runcmd:
         await this.api.dropletsDelete(this.droplet.id);
         this._isDropletRunning = false;
         this.droplet = undefined;
+        this.logs.appendLog('Droplet destroyed.');
         return resolve();
       } catch (e) {
-        console.error('error while destroying droplet, ', e);
+        this.logs.appendLog('Error while destroying droplet: ' + JSON.stringify(e));
         reject();
       }
     });
@@ -99,11 +104,13 @@ runcmd:
   }
 
   checkDroplets(): Promise<void> {
+    this.logs.appendLog('Checking active droplets...');
     return this.api.dropletsGetAll().then((resp) => {
       if (resp.body.droplets && resp.body.droplets.length) {
         resp.body.droplets.forEach(d => {
           console.log(d);
           if (d.name.toLowerCase().includes('vpn')) {
+            this.logs.appendLog('Active droplet found.');
             this.droplet = d;
             this._isDropletRunning = true;
           }

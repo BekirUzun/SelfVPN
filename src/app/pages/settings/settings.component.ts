@@ -3,6 +3,7 @@ import { state } from '../../shared/state';
 import { VpsService } from '../../providers/vps-service/vps.service';
 import { errors } from '../../shared/errors';
 import { ConfigService, ConfigKeys } from '../../providers/config-service/config.service';
+import { LoggerService } from '../../providers/logger-service/logger.service';
 
 @Component({
   selector: 'app-settings',
@@ -17,7 +18,7 @@ export class SettingsComponent implements OnInit {
   sshId: string;
   connected = false;
 
-  constructor(public vpsService: VpsService, public config: ConfigService) { }
+  constructor(public vpsService: VpsService, public config: ConfigService, public logs: LoggerService) { }
 
   ngOnInit() {
    this.loadConfig();
@@ -31,16 +32,18 @@ export class SettingsComponent implements OnInit {
     this.vpsService.updateApiKey(this.apiKey).then(() => {
       this.config.set(ConfigKeys.apiKey, this.apiKey);
       alert('Settings saved!'); // TODO: better user message displaying
+      this.logs.appendLog('API key updated.');
     }).catch(err => {
       if (err.message) {
+        this.logs.appendLog(err.message);
         alert(err.message);
         return;
       }
-      alert('Api key is invalid'); // TODO: better user message displaying
+      this.logs.appendLog('API key is invalid.');
+      alert('API key is invalid'); // TODO: better user message displaying
     }).finally(() => {
       state.isHomeLoading = false;
     });
-
   }
 
   loadConfig() {
