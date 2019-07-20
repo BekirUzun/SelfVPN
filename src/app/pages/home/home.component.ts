@@ -6,6 +6,7 @@ import { LoggerService } from '../../providers/logger-service/logger.service';
 import { ConfigService, ConfigKeys } from '../../providers/config-service/config.service';
 import { ClientService } from '../../providers/client-service/client.service';
 import { NetworkStatus } from '../../models/network';
+import { IClient } from '../../providers/client-service/interface-client';
 
 @Component({
   selector: 'app-home',
@@ -27,6 +28,7 @@ export class HomeComponent implements OnInit {
   networkStatus = new NetworkStatus();
   isTopAnimating: boolean;
   isBottomAnimating: boolean;
+  client: IClient;
 
   constructor(
     public vpsService: VpsService,
@@ -34,7 +36,9 @@ export class HomeComponent implements OnInit {
     public logs: LoggerService,
     public config: ConfigService,
     public zone: NgZone,
-    public clientService: ClientService) { }
+    clientService: ClientService) {
+      this.client =  clientService.getClient();
+  }
 
   ngOnInit() {
     this.selectedRegion = this.config.get(ConfigKeys.region);
@@ -46,10 +50,17 @@ export class HomeComponent implements OnInit {
         if (this.vpsService.getDropletIP() !== 'Unknown') {
           this.serverReady = true;
         }
+        if (!this.client)
+          state.isHomeLoading = false;
       });
     }
 
-    this.clientService.isConnected().then(isConnected => {
+    if (!this.client) {
+      alert('You are using an unsupported platform. You won\'t be able to connect your VPN from this client.');
+      return;
+    }
+
+    this.client.isConnected().then(isConnected => {
       if (isConnected) {
         this.vpnConnected = true;
         this.powerOn = true;
@@ -113,14 +124,14 @@ export class HomeComponent implements OnInit {
   }
 
   connect() {
-    if (!this.isDropletRunning() || this.connectSpinner || !this.serverReady)
+    if (!this.isDropletRunning() || this.connectSpinner || !this.serverReady || !this.client)
       return;
 
     this.powerOn = !this.powerOn;
     this.connectSpinner = true;
 
     if (this.vpnConnected) {
-      this.clientService.disconnect().then((output: string) => {
+      this.client.disconnect().then((output: string) => {
         this.vpnConnected = false;
         this.powerOn = false;
         this.logs.appendLog('Disconnected from VPN.');
@@ -133,7 +144,7 @@ export class HomeComponent implements OnInit {
       });
     } else {
       this.startConnectingAnimation();
-      this.clientService.connect().then((output: string) => {
+      this.client.connect().then((output: string) => {
         if (output.includes('connected')) {
           this.vpnConnected = true;
           this.stopConnectingAnimation();
@@ -180,7 +191,7 @@ export class HomeComponent implements OnInit {
   }
 
   startNetworkMonitor() {
-    this.clientService.startNetworkMonitor((output: string) => {
+    this.client.startNetworkMonitor((output: string) => {
       if (!output || !output.trim() || output.includes('EOI'))
         return;
       this.zone.run(() => {
@@ -196,7 +207,7 @@ export class HomeComponent implements OnInit {
 
   stopNetworkMonitor() {
     this.networkStatus.reset();
-    this.clientService.stopNetworkMonitor();
+    this.client.stopNetworkMonitor();
   }
 
 }
