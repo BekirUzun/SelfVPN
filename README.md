@@ -39,6 +39,16 @@ Support for other platforms may be added by implementing connectivity features.
 ## Troubleshooting
 If you are having trouble connecting your server, you may check [setup-ipsec-vpn repo's troubleshooting section](https://github.com/hwdsl2/setup-ipsec-vpn/blob/master/docs/clients.md#troubleshooting). 
 
+## TODO
+ - [ ] Add support for Linux
+ - [ ] Add support for Mac
+ - [ ] Confirmation UI with Nebular components
+ - [ ] Alert UI with Nebular components
+ - [ ] Auto destroy server if there is no connection (or data transfer) for n minutes/hours
+ - [ ] Implement simple server that returns ``{ "success": true }`` in Golang
+ - [ ] Separate network monitoring from connect button
+ - [ ] Check and improve packages.json, there may be misconfigurations
+
 ## Credits
 - Angular-Electron: fast bootstrapping Angular and Electron - https://github.com/maximegris/angular-electron
 - Nebular: UI library for Angular - https://github.com/akveo/nebular
