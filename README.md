@@ -8,6 +8,9 @@ SelfVPN automatizes VPN server installation on DigitalOcean droplets. You can cr
  - SelfVPN is directly connected to DigitalOcean v2 API, there is no server owned by SelfVPN between you and your actual VPN server.
  - You are total control of your VPN server. You may create VPN servers on 8 different locations and destroy them as you wish.
 
+## Screenshot
+ ![SelfVPN Screenshot](selfvpn_ss.png)
+ 
 ## How To Use?
  - Build SelfVPN from source or [download a release](https://github.com/BekirUzun/SelfVPN/releases).
  - Get your API Key from here [DigitalOcean API Token](https://cloud.digitalocean.com/account/api/tokens)  
