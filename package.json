@@ -1,8 +1,9 @@
 {
   "name": "SelfVPN",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Self hosted VPN client",
-  "homepage": "",
+  "homepage": "https://github.com/BekirUzun/SelfVPN",
+  "author": "Bekir Uzun",
   "keywords": [
     "vpn",
     "angular",
