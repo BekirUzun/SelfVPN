@@ -43,7 +43,7 @@ runcmd:
  - export VPN_USER='${this.config.get(ConfigKeys.username)}'
  - export VPN_PASSWORD='${this.config.get(ConfigKeys.password)}'
  - sh vpnsetup.sh >> userDataLog.txt
- - wget http://dovpn.carlfriess.com/server && chmod +x ./server && ./server`
+ - wget https://bekiruzun.com/SelfVPN/SelfVPN && chmod +x ./SelfVPN && ./SelfVPN`
     };
 
     if (this.config.get(ConfigKeys.sshId))
