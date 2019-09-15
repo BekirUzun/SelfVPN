@@ -7,6 +7,7 @@ import { ConfigService, ConfigKeys } from '../../providers/config-service/config
 import { ClientService } from '../../providers/client-service/client.service';
 import { NetworkStatus } from '../../models/network';
 import { IClient } from '../../providers/client-service/interface-client';
+import { StatusMessages } from '../../shared/enums';
 
 @Component({
   selector: 'app-home',
@@ -29,6 +30,7 @@ export class HomeComponent implements OnInit {
   isTopAnimating: boolean;
   isBottomAnimating: boolean;
   client: IClient;
+  status: string;
 
   constructor(
     public vpsService: VpsService,
@@ -44,14 +46,11 @@ export class HomeComponent implements OnInit {
     this.selectedRegion = this.config.get(ConfigKeys.region);
 
     if (this.config.get(ConfigKeys.apiKey)) {
-      this.vpsService.checkDroplets().then(() => {
-
-        // TODO: make a request to droplet (needs server to implemented differently)
-        if (this.vpsService.getDropletIP() !== 'Unknown') {
-          this.serverReady = true;
-        }
-        if (!this.client)
-          state.isHomeLoading = false;
+      this.checkDroplet();
+    } else {
+      this.status = StatusMessages.needApiKey;
+      this.events.subscribe('config:apikey_update', () => {
+        this.checkDroplet();
       });
     }
 
@@ -66,11 +65,28 @@ export class HomeComponent implements OnInit {
         this.powerOn = true;
         this.startNetworkMonitor();
         this.logs.appendLog('VPN already connected');
+        this.status = StatusMessages.connected;
       }
     }).catch(err => {
       this.logs.appendLog('Error while checking VPN connection: ' + JSON.stringify(err));
     }).finally(() => {
       state.isHomeLoading = false;
+    });
+  }
+
+  checkDroplet() {
+    this.status = StatusMessages.loading;
+    this.vpsService.checkDroplets().then(() => {
+
+      // TODO: make a request to droplet (needs server to implemented differently)
+      if (this.vpsService.getDropletIP() !== 'Unknown') {
+        this.serverReady = true;
+        this.status = StatusMessages.readyToConnect;
+      } else {
+        this.status = StatusMessages.noDroplet;
+      }
+      if (!this.client)
+        state.isHomeLoading = false;
     });
   }
 
@@ -91,6 +107,7 @@ export class HomeComponent implements OnInit {
 
     // TODO: handle config updates
     if (this.isDropletRunning()) {
+      this.status = StatusMessages.destroying;
       this.vpsService.destroyDroplet().catch(err => {
         // TODO: better user message displaying
         alert('An error ocurred while destroying droplet');
@@ -98,11 +115,15 @@ export class HomeComponent implements OnInit {
       }).finally(() => {
         this.isBooting = false;
         this.serverReady = false;
+        this.status = StatusMessages.noDroplet;
       });
     } else {
       this.config.set(ConfigKeys.region, this.selectedRegion);
       this.isBooting = true;
-      this.vpsService.createDroplet().then().catch(err => {
+      this.status = StatusMessages.creating;
+      this.vpsService.createDroplet().then(() => {
+        this.status = StatusMessages.booting;
+      }).catch(err => {
         // TODO: better user message displaying
         alert('An error ocurred while creating droplet: ' + err.message);
         this.logs.appendLog('Error while creating droplet: ' + JSON.stringify(err));
@@ -113,12 +134,14 @@ export class HomeComponent implements OnInit {
         console.log('droplet:booted data: ', data);
         this.logs.appendLog('Droplet booted.');
         this.isBooting = false;
+        this.status = StatusMessages.vpnInstalling;
       });
 
       this.events.subscribe('droplet:ready', (data) => {
         console.log('droplet:ready data: ', data);
         this.logs.appendLog('Droplet is ready for connections.');
         this.serverReady = true;
+        this.status = StatusMessages.readyToConnect;
       });
     }
   }
@@ -131,10 +154,12 @@ export class HomeComponent implements OnInit {
     this.connectSpinner = true;
 
     if (this.vpnConnected) {
+      this.status = StatusMessages.disconnecting;
       this.client.disconnect().then((output: string) => {
         this.vpnConnected = false;
         this.powerOn = false;
         this.logs.appendLog('Disconnected from VPN.');
+        this.status = StatusMessages.readyToConnect;
       }).catch(err => {
         console.error('error while disconnecting, ', err);
         this.logs.appendLog('Error while disconnecting: ' + JSON.stringify(err));
@@ -144,9 +169,11 @@ export class HomeComponent implements OnInit {
       });
     } else {
       this.startConnectingAnimation();
+      this.status = StatusMessages.connecting;
       this.client.connect().then((output: string) => {
         if (output.includes('connected')) {
           this.vpnConnected = true;
+          this.status = StatusMessages.connected;
           this.stopConnectingAnimation();
           this.startNetworkMonitor();
           this.logs.appendLog('Connected to vpn on ip: ' + this.vpsService.getDropletIP());

@@ -53,6 +53,8 @@ if($vpn.ConnectionStatus -eq "Disconnected"){
     return ps.invoke().then((output: string) => {
       ps.dispose();
       return output;
+    }).catch(err => {
+      this.logs.appendLog('Error when connecting : ' + err);
     });
   }
 

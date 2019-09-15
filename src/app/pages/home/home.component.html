@@ -28,20 +28,20 @@
         <div class="border">
           {{ vpsService.getDropletIP() }}
         </div>
-        <div class="circle-border"> </div> 
+        <div class="circle-border"> </div>
       </div>
     </div>
   </div>
   <div class="col-6">
     <div class="area top-right">
       <div class="label">
-        Region
+        Status
       </div>
       <div class="content">
         <div class="border">
-          {{ vpsService.getDropletRegion() }}
+          {{ status }}
         </div>
-        <div class="circle-border"> </div> 
+        <div class="circle-border"> </div>
       </div>
     </div>
   </div>
@@ -77,7 +77,7 @@
       <div class="content">
         <div class="border">
           <div class="row">
-            <div class="col-6"> 
+            <div class="col-6">
               <img src="assets/download.svg">
             </div>
             <div class="col-6">
@@ -85,7 +85,7 @@
             </div>
           </div>
           <div class="row">
-            <div class="col-6"> 
+            <div class="col-6">
               {{ networkStatus.getDownloadSpeed() }}
             </div>
             <div class="col-6">
@@ -93,11 +93,11 @@
             </div>
           </div>
         </div>
-        <div class="circle-border"> </div> 
+        <div class="circle-border"> </div>
       </div>
     </div>
   </div>
-  
+
   <div class="col-6">
     <div class="area icon bottom-right">
       <div class="label">
@@ -106,7 +106,7 @@
       <div class="content">
         <div class="border">
           <div class="row">
-            <div class="col-6"> 
+            <div class="col-6">
               <img src="assets/download.svg">
             </div>
             <div class="col-6">
@@ -114,7 +114,7 @@
             </div>
           </div>
           <div class="row">
-            <div class="col-6"> 
+            <div class="col-6">
               {{ networkStatus.getTotalDownload() }}
             </div>
             <div class="col-6">
@@ -122,7 +122,7 @@
             </div>
           </div>
         </div>
-        <div class="circle-border"> </div>         
+        <div class="circle-border"> </div>
       </div>
     </div>
   </div>
