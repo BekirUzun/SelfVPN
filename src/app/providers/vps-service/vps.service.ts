@@ -43,8 +43,8 @@ runcmd:
  - export VPN_USER='${this.config.get(ConfigKeys.username)}'
  - export VPN_PASSWORD='${this.config.get(ConfigKeys.password)}'
  - sh vpnsetup.sh >> userDataLog.txt
- - wget https://bekiruzun.com/SelfVPN/SelfVPN && chmod +x ./SelfVPN
- - ./SelfVPN &`
+ - wget https://bekiruzun.com/SelfVPN/server/server && chmod +x ./server
+ - ./server &`
     };
 
     if (this.config.get(ConfigKeys.sshId))
@@ -53,7 +53,7 @@ runcmd:
     if (this.config.get(ConfigKeys.autoDestroy)) {
       newDroplet.user_data += `
  - echo "DO_PAT=${this.config.get(ConfigKeys.apiKey)}" > .env
- - wget https://bekiruzun.com/SelfVPN/monitor && chmod +x ./monitor
+ - wget https://bekiruzun.com/SelfVPN/monitor/monitor && chmod +x ./monitor
  - ./monitor &`;
     }
 
