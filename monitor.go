@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/digitalocean/godo"
+	"github.com/joho/godotenv"
 	"golang.org/x/oauth2"
 )
 
@@ -28,11 +29,16 @@ func (t *TokenSource) Token() (*oauth2.Token, error) {
 
 func main() {
 
-	f, err := os.OpenFile("selfvpn.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	f, err := os.OpenFile("monitor.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
 		log.Printf("error opening file: %v", err)
 	}
 	defer f.Close()
+
+	err2 := godotenv.Load()
+	if err != nil {
+		log.Fatalf("Error loading .env file: %v", err2)
+	}
 
 	log.SetOutput(f)
 	log.Println("-----------------------------------------------")
