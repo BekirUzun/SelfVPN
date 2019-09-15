@@ -37,6 +37,7 @@ func main() {
 	log.SetOutput(f)
 	log.Println("-----------------------------------------------")
 	log.Println("Starting network monitoring...")
+	log.Printf("DO_PAT : %s", os.Getenv("DO_PAT"))
 
 	tokenSource := &TokenSource{
 		AccessToken: os.Getenv("DO_PAT"),
@@ -55,7 +56,7 @@ func main() {
 			}
 		}
 	} else {
-		log.Fatalf("No droplet found? Wierd... response: %s \n", resp)
+		log.Fatalf("No droplet found? Wierd... response: %s \n", resp.Response)
 	}
 
 	if vpnDroplet.Name == "" || vpnDroplet.ID == 0 {
@@ -75,6 +76,7 @@ func main() {
 		if !isClientConnected(outBytes) {
 			clientConnectionTimeout--
 			if clientConnectionTimeout <= 0 {
+				log.Println("There is no connected client")
 				destroyDroplet(client, vpnDroplet)
 				break
 			}
@@ -87,6 +89,7 @@ func main() {
 		if downloaded-lastDownloaded < 10 {
 			noDownloadTimeout--
 			if noDownloadTimeout <= 0 {
+				log.Println("There is no bandwith usage")
 				destroyDroplet(client, vpnDroplet)
 				break
 			}
