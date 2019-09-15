@@ -10,7 +10,8 @@ export enum ConfigKeys {
   psk = 'psk',
   sshId = 'sshId',
   windowPosition = 'windowPosition',
-  region = 'region'
+  region = 'region',
+  autoDestroy = 'autoDestroy'
 }
 
 @Injectable({
@@ -58,6 +59,9 @@ export class ConfigService {
       }
       case ConfigKeys.region: {
         return 'ams3';
+      }
+      case ConfigKeys.autoDestroy: {
+        return false;
       }
       default: {
         return '';

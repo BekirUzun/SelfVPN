@@ -42,16 +42,20 @@ runcmd:
  - export VPN_IPSEC_PSK='${this.config.get(ConfigKeys.psk)}'
  - export VPN_USER='${this.config.get(ConfigKeys.username)}'
  - export VPN_PASSWORD='${this.config.get(ConfigKeys.password)}'
- - echo "DO_PAT=${this.config.get(ConfigKeys.apiKey)}" > .env
  - sh vpnsetup.sh >> userDataLog.txt
  - wget https://bekiruzun.com/SelfVPN/SelfVPN && chmod +x ./SelfVPN
- - wget https://bekiruzun.com/SelfVPN/monitor && chmod +x ./monitor
- - ./SelfVPN &
- - ./monitor &`
+ - ./SelfVPN &`
     };
 
     if (this.config.get(ConfigKeys.sshId))
       newDroplet.ssh_keys.push(this.config.get(ConfigKeys.sshId));
+
+    if (this.config.get(ConfigKeys.autoDestroy)) {
+      newDroplet.user_data += `
+ - echo "DO_PAT=${this.config.get(ConfigKeys.apiKey)}" > .env
+ - wget https://bekiruzun.com/SelfVPN/monitor && chmod +x ./monitor
+ - ./monitor &`;
+    }
 
     return this.api.dropletsCreate(newDroplet).then(resp => {
       this.droplet = resp.body.droplet;

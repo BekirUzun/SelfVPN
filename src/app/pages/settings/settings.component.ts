@@ -17,6 +17,7 @@ export class SettingsComponent implements OnInit {
   psk: string;
   sshId: string;
   connected = false;
+  autoDestroy: boolean;
 
   constructor(public vpsService: VpsService, public config: ConfigService, public logs: LoggerService) { }
 
@@ -28,6 +29,7 @@ export class SettingsComponent implements OnInit {
     state.isHomeLoading = true;
 
     this.config.set(ConfigKeys.sshId, this.sshId);
+    this.config.set(ConfigKeys.autoDestroy, this.autoDestroy);
 
     this.vpsService.updateApiKey(this.apiKey).then(() => {
       this.config.set(ConfigKeys.apiKey, this.apiKey);
@@ -49,6 +51,7 @@ export class SettingsComponent implements OnInit {
   loadConfig() {
     this.apiKey = this.config.get(ConfigKeys.apiKey);
     this.sshId = this.config.get(ConfigKeys.sshId);
+    this.autoDestroy = this.config.get(ConfigKeys.autoDestroy);
   }
 
 }
