@@ -54,7 +54,7 @@ If you are having trouble connecting your server, you may check [setup-ipsec-vpn
  - [ ] Add support for Mac
  - [ ] Confirmation UI with Nebular components
  - [ ] Alert UI with Nebular components
- - [ ] Auto destroy server if there is no connection (or data transfer) for n minutes/hours
+ - [x] Auto destroy server if there is no connection (or data transfer) for n minutes/hours
  - [x] Implement simple server that returns ``{ "success": true }`` in Golang
  - [ ] Separate network monitoring from connect button
  - [ ] Check and improve packages.json, there may be misconfigurations
