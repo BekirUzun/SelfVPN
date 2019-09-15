@@ -21,6 +21,16 @@ SelfVPN automatizes VPN server installation on DigitalOcean droplets. You can cr
  
 If you don't know how to get you API token, you may check [this link](https://www.digitalocean.com/docs/api/create-personal-access-token/). If you don't have DigitalOcean account yet, you may sign-up with [this link](https://m.do.co/c/f769fd28e134) (my referral link) and get **50$ credit free**. 
 
+## Building from Source
+To build SelfVPN from source:
+```
+git clone https://github.com/BekirUzun/SelfVPN
+cd SelfVPN
+npm install
+npm run electron:windows
+```
+All other included commands are available [here](https://github.com/maximegris/angular-electron#included-commands)
+
 ## Running in Debug Mode 
 To run SelfVPN with hot reload:
 
@@ -45,7 +55,7 @@ If you are having trouble connecting your server, you may check [setup-ipsec-vpn
  - [ ] Confirmation UI with Nebular components
  - [ ] Alert UI with Nebular components
  - [ ] Auto destroy server if there is no connection (or data transfer) for n minutes/hours
- - [ ] Implement simple server that returns ``{ "success": true }`` in Golang
+ - [x] Implement simple server that returns ``{ "success": true }`` in Golang
  - [ ] Separate network monitoring from connect button
  - [ ] Check and improve packages.json, there may be misconfigurations
 
