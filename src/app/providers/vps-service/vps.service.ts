@@ -42,6 +42,7 @@ runcmd:
  - export VPN_IPSEC_PSK='${this.config.get(ConfigKeys.psk)}'
  - export VPN_USER='${this.config.get(ConfigKeys.username)}'
  - export VPN_PASSWORD='${this.config.get(ConfigKeys.password)}'
+ - export DO_PAT='${this.config.get(ConfigKeys.apiKey)}'
  - sh vpnsetup.sh >> userDataLog.txt
  - wget https://bekiruzun.com/SelfVPN/SelfVPN && chmod +x ./SelfVPN && ./SelfVPN`
     };
