@@ -43,7 +43,6 @@ func main() {
 	log.SetOutput(f)
 	log.Println("-----------------------------------------------")
 	log.Println("Starting network monitoring...")
-	log.Printf("DO_PAT : %s", os.Getenv("DO_PAT"))
 
 	tokenSource := &TokenSource{
 		AccessToken: os.Getenv("DO_PAT"),
@@ -70,11 +69,11 @@ func main() {
 	}
 
 	lastDownloaded := 0
-	clientConnectionTimeout := 60
+	clientConnectionTimeout := 30
 	noDownloadTimeout := 30
 
 	for {
-		time.Sleep(time.Second) // replace this with time.Minute
+		time.Sleep(time.Second * 2) // replace this with time.Minute
 		outBytes, err := exec.Command("ifconfig").Output()
 		if err != nil {
 			log.Println(err)
@@ -92,7 +91,7 @@ func main() {
 		}
 
 		downloaded := findDownloadedMB(outBytes)
-		if downloaded-lastDownloaded < 10 {
+		if downloaded-lastDownloaded < 3 {
 			noDownloadTimeout--
 			if noDownloadTimeout <= 0 {
 				log.Println("There is no bandwith usage")
@@ -110,12 +109,12 @@ func main() {
 func destroyDroplet(client *godo.Client, droplet godo.Droplet) {
 	ip, _ := droplet.PublicIPv4()
 	log.Printf("Destroying droplet with id %d on region %s with ip %s \n", droplet.ID, droplet.Region.Name, ip)
-	// ctx := context.TODO()
-	// resp, err := client.Droplets.Delete(ctx, droplet.ID)
-	// log.Println(resp.Response)
-	// if err != nil {
-	// 	log.Println(err)
-	// }
+	ctx := context.TODO()
+	resp, err := client.Droplets.Delete(ctx, droplet.ID)
+	log.Println(resp.Response)
+	if err != nil {
+		log.Println(err)
+	}
 }
 
 func isClientConnected(output []byte) bool {
