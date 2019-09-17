@@ -76,10 +76,10 @@
       </div>
       <div class="content">
         <div class="border">
-          <div class="row monitoring-disabled" *ngIf="!monitoringStarted" >
-            <button appearance="ghost" status="success" nbButton size="small">Enable Network<br/> Monitoring</button>
+          <div class="row monitoring-disabled" *ngIf="!isMonitoringStarted" >
+            <button appearance="ghost" status="success" nbButton size="small" (click)="startNetworkMonitor()">Enable Network<br/> Monitoring</button>
           </div>
-          <div class="row" *ngIf="monitoringStarted">
+          <div class="row" *ngIf="isMonitoringStarted">
             <div class="col-6">
               <img src="assets/download.svg">
             </div>
@@ -87,7 +87,7 @@
               <img src="assets/upload.svg">
             </div>
           </div>
-          <div class="row" *ngIf="monitoringStarted">
+          <div class="row" *ngIf="isMonitoringStarted">
             <div class="col-6">
               {{ networkStatus.getDownloadSpeed() }}
             </div>
@@ -108,10 +108,10 @@
       </div>
       <div class="content">
         <div class="border">
-          <div class="row monitoring-disabled" *ngIf="!monitoringStarted" >
-            <button appearance="ghost" status="success" nbButton size="small">Enable Network<br/> Monitoring</button>
+          <div class="row monitoring-disabled" *ngIf="!isMonitoringStarted" >
+            <button appearance="ghost" status="success" nbButton size="small" (click)="startNetworkMonitor()">Enable Network<br/> Monitoring</button>
           </div>
-          <div class="row" *ngIf="monitoringStarted">
+          <div class="row" *ngIf="isMonitoringStarted">
             <div class="col-6">
               <img src="assets/download.svg">
             </div>
@@ -119,7 +119,7 @@
               <img src="assets/upload.svg">
             </div>
           </div>
-          <div class="row" *ngIf="monitoringStarted">
+          <div class="row" *ngIf="isMonitoringStarted">
             <div class="col-6">
               {{ networkStatus.getTotalDownload() }}
             </div>
