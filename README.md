@@ -56,7 +56,7 @@ If you are having trouble connecting your server, you may check [setup-ipsec-vpn
  - [ ] Alert UI with Nebular components
  - [x] Auto destroy server if there is no connection (or data transfer) for n minutes/hours
  - [x] Implement simple server that returns ``{ "success": true }`` in Golang
- - [ ] Separate network monitoring from connect button
+ - [x] Separate network monitoring from connect button
  - [ ] Check and improve packages.json, there may be misconfigurations
 
 ## Credits
