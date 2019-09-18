@@ -79,20 +79,22 @@
           <div class="row monitoring-disabled" *ngIf="!isMonitoringStarted" >
             <button appearance="ghost" status="success" nbButton size="small" (click)="startNetworkMonitor()">Enable Network<br/> Monitoring</button>
           </div>
-          <div class="row" *ngIf="isMonitoringStarted">
-            <div class="col-6">
-              <img src="assets/download.svg">
+          <div *ngIf="isMonitoringStarted">
+            <div class="row">
+              <div class="col-6">
+                <img src="assets/download.svg">
+              </div>
+              <div class="col-6">
+                <img src="assets/upload.svg">
+              </div>
             </div>
-            <div class="col-6">
-              <img src="assets/upload.svg">
-            </div>
-          </div>
-          <div class="row" *ngIf="isMonitoringStarted">
-            <div class="col-6">
-              {{ networkStatus.getDownloadSpeed() }}
-            </div>
-            <div class="col-6">
-              {{ networkStatus.getUploadSpeed() }}
+            <div class="row">
+              <div class="col-6">
+                {{ networkStatus.getDownloadSpeed() }}
+              </div>
+              <div class="col-6">
+                {{ networkStatus.getUploadSpeed() }}
+              </div>
             </div>
           </div>
         </div>
@@ -111,20 +113,22 @@
           <div class="row monitoring-disabled" *ngIf="!isMonitoringStarted" >
             <button appearance="ghost" status="success" nbButton size="small" (click)="startNetworkMonitor()">Enable Network<br/> Monitoring</button>
           </div>
-          <div class="row" *ngIf="isMonitoringStarted">
-            <div class="col-6">
-              <img src="assets/download.svg">
+          <div *ngIf="isMonitoringStarted">
+            <div class="row" >
+              <div class="col-6">
+                <img src="assets/download.svg">
+              </div>
+              <div class="col-6">
+                <img src="assets/upload.svg">
+              </div>
             </div>
-            <div class="col-6">
-              <img src="assets/upload.svg">
-            </div>
-          </div>
-          <div class="row" *ngIf="isMonitoringStarted">
-            <div class="col-6">
-              {{ networkStatus.getTotalDownload() }}
-            </div>
-            <div class="col-6">
-              {{ networkStatus.getTotalUpload() }}
+            <div class="row">
+              <div class="col-6">
+                {{ networkStatus.getTotalDownload() }}
+              </div>
+              <div class="col-6">
+                {{ networkStatus.getTotalUpload() }}
+              </div>
             </div>
           </div>
         </div>
