@@ -18,6 +18,7 @@ export class HomeComponent implements OnInit {
 // tslint:disable:max-line-length
 
   vpnConnected = false;
+  isMonitoringStarted = false;
   isBooting = false;
   serverReady = false;
   currentKey: string;
@@ -218,6 +219,7 @@ export class HomeComponent implements OnInit {
   }
 
   startNetworkMonitor() {
+    this.isMonitoringStarted = true;
     this.client.startNetworkMonitor((output: string) => {
       if (!output || !output.trim() || output.includes('EOI'))
         return;
@@ -233,6 +235,7 @@ export class HomeComponent implements OnInit {
   }
 
   stopNetworkMonitor() {
+    this.isMonitoringStarted = false;
     this.networkStatus.reset();
     this.client.stopNetworkMonitor();
   }

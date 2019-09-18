@@ -27,7 +27,7 @@ html, body {
   nav {
     height: $header-height;
     padding: .75rem 0 .75rem 1rem;
-    
+
     app-nav {
       width: 100%;
 
@@ -66,7 +66,7 @@ html, body {
 
   nb-card-header {
     padding: .5rem .75rem;
-    
+
     .buttons {
       width: unset !important;
       -webkit-app-region: no-drag;
@@ -154,7 +154,7 @@ textarea {
 
     &.top {
       top: -8px;
-      
+
       .text.animate {
         transition: background-position 0.5s ease;
         background-position: 0%;
@@ -220,7 +220,7 @@ textarea {
       #circle {
         transform: rotate(180deg);
       }
-  
+
       #line {
         transform: translateY(13px);
       }
@@ -309,7 +309,7 @@ textarea {
   .col-6:nth-child(1) {
     padding-right: 8px;
   }
-  
+
   .col-6:nth-child(2) {
     padding-left: 8px;
   }
@@ -317,14 +317,14 @@ textarea {
 
 .area {
   position: relative;
-  
+
   .label {
     position: absolute;
     background: #151a30;
     padding: 0.2rem 0.4rem;
     z-index: 2;
   }
-  
+
   .content {
     display: inline-block;
     width: 100%;
@@ -343,7 +343,7 @@ textarea {
     position: absolute;
     width: 125px;
     height: 125px;
-    
+
     border-radius: 50%;
     background: nb-theme(color-primary-500);
 
@@ -440,7 +440,7 @@ textarea {
     &.bottom-right .content .border {
       padding: 0.5rem 0 0.25rem 3.5rem;
     }
-    
+
     .row {
       padding: 0;
       font-size: 0.8rem;
@@ -451,12 +451,12 @@ textarea {
         padding-left: 0;
         padding-right: 0;
       }
-    
+
       img {
         width: 1.25rem;
         margin: 0 3px 0 5px;
       }
-    
+
     }
   }
 }
@@ -474,12 +474,18 @@ textarea {
   flex: 0 0 37.5%;
   max-width: 37.5%;
   align-self: center;
-  
+
   &:nth-of-type(1) {
     padding-right: 8px;
   }
 
   &:nth-of-type(3) {
     padding-left: 8px;
+  }
+}
+
+.row.monitoring-disabled {
+  button {
+    padding: 0.4rem 1rem !important;
   }
 }
