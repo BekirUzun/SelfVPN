@@ -489,3 +489,23 @@ textarea {
     padding: 0.4rem 1rem !important;
   }
 }
+
+app-dialog nb-card {
+  margin: 0 3rem;
+  word-break: break-word;
+
+  nb-card-footer {
+    padding: 0 0.25rem !important;
+    text-align: right;
+
+    button {
+      margin: 0.5rem 0.5rem;
+    }
+  }
+
+}
+
+.cdk-overlay-dark-backdrop {
+  background: rgba(0,0,0,0.5);
+}
+
