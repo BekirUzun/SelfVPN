@@ -1,0 +1,7 @@
+<nb-card>
+  <nb-card-body>{{ message }}</nb-card-body>
+  <nb-card-footer>
+    <button *ngIf="cancel" size="small" nbButton (click)="cancel()">Cancel</button>
+    <button size="small" nbButton (click)="confirm()">Ok</button>
+  </nb-card-footer>
+</nb-card>
