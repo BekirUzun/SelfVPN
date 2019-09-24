@@ -76,11 +76,9 @@ runcmd:
         await this.api.dropletsDelete(this.droplet.id);
         this._isDropletRunning = false;
         this.droplet = undefined;
-        this.logs.appendLog('Droplet destroyed.');
         return resolve();
       } catch (e) {
-        this.logs.appendLog('Error while destroying droplet: ' + JSON.stringify(e));
-        reject();
+        reject(e);
       }
     });
   }
@@ -118,15 +116,12 @@ runcmd:
         resp.body.droplets.forEach(d => {
           console.log(d);
           if (d.name.toLowerCase().includes('vpn')) {
-            this.logs.appendLog('Active droplet found.');
             this.droplet = d;
             this._isDropletRunning = true;
           }
         });
       }
     }).catch(err => {
-      console.log('error while checking droplets: ', err);
-      this.logs.appendLog('Error while checking droplets: ' + JSON.stringify(err));
       return err;
     });
   }

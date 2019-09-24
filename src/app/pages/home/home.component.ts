@@ -109,11 +109,16 @@ export class HomeComponent implements OnInit {
       if (this.vpsService.getDropletIP() !== 'Unknown') {
         this.serverReady = true;
         this.status = StatusMessages.readyToConnect;
+        this.logs.appendLog('Droplet found. IP: ' + this.vpsService.getDropletIP());
       } else {
         this.status = StatusMessages.noDroplet;
+        this.logs.appendLog('Vpn droplet not found');
       }
       if (!this.client)
         state.isHomeLoading = false;
+    }).catch(err => {
+      this.logs.appendLog('Error while checking droplets ' + err.message);
+      this.showAlert('Error while checking droplets ' + err.message);
     });
   }
 
