@@ -8,6 +8,8 @@ import { ClientService } from '../../providers/client-service/client.service';
 import { NetworkStatus } from '../../models/network';
 import { IClient } from '../../providers/client-service/interface-client';
 import { StatusMessages } from '../../shared/enums';
+import { NbDialogService } from '@nebular/theme';
+import { DialogComponent } from '../../components/dialog/dialog.component';
 
 @Component({
   selector: 'app-home',
@@ -32,6 +34,7 @@ export class HomeComponent implements OnInit {
   isBottomAnimating: boolean;
   client: IClient;
   status: string;
+  dialogRef;
 
   constructor(
     public vpsService: VpsService,
@@ -39,7 +42,9 @@ export class HomeComponent implements OnInit {
     public logs: LoggerService,
     public config: ConfigService,
     public zone: NgZone,
-    clientService: ClientService) {
+    private dialogService: NbDialogService,
+    clientService: ClientService,
+    ) {
       this.client =  clientService.getClient();
   }
 
@@ -56,7 +61,8 @@ export class HomeComponent implements OnInit {
     }
 
     if (!this.client) {
-      alert('You are using an unsupported platform. You won\'t be able to connect your VPN from this client.');
+      this.showAlert('You are using an unsupported platform. You won\'t be able to connect VPN');
+      state.isHomeLoading = false;
       return;
     }
 
@@ -72,6 +78,26 @@ export class HomeComponent implements OnInit {
       this.logs.appendLog('Error while checking VPN connection: ' + JSON.stringify(err));
     }).finally(() => {
       state.isHomeLoading = false;
+    });
+  }
+
+  showAlert(message) {
+    this.dialogRef = this.dialogService.open(DialogComponent, {
+      context: {
+        message: message,
+        confirm: () => { this.dialogRef.close(); },
+        // cancel: () => { this.dialogRef.close(); }
+      },
+    });
+  }
+
+  showConfirm(message, onConfirm) {
+    this.dialogRef = this.dialogService.open(DialogComponent, {
+      context: {
+        message: message,
+        confirm: onConfirm,
+        cancel: () => { this.dialogRef.close(); }
+      },
     });
   }
 
@@ -99,19 +125,21 @@ export class HomeComponent implements OnInit {
     this.config.set(ConfigKeys.region, this.selectedRegion);
   }
 
-  dropletAction() {
-    // TODO: better confirmation UI
+  dropletClickHandler() {
     let msg = this.isDropletRunning() ? 'Are you sure to destroy vpn droplet?' : 'Are you sure to create new droplet?';
-    let ok = confirm(msg);
-    if (!ok)
-      return;
+    this.showConfirm(msg, () => {
+      this.dropletAction();
+      this.dialogRef.close();
+    });
+  }
 
+  dropletAction() {
     // TODO: handle config updates
     if (this.isDropletRunning()) {
       this.status = StatusMessages.destroying;
       this.vpsService.destroyDroplet().catch(err => {
         // TODO: better user message displaying
-        alert('An error ocurred while destroying droplet');
+        this.showAlert('An error ocurred while destroying droplet');
         this.logs.appendLog('Error while destroying droplet: ' + JSON.stringify(err));
       }).finally(() => {
         this.isBooting = false;
@@ -126,11 +154,12 @@ export class HomeComponent implements OnInit {
         this.status = StatusMessages.booting;
       }).catch(err => {
         // TODO: better user message displaying
-        alert('An error ocurred while creating droplet: ' + err.message);
+        this.showAlert('An error ocurred while creating droplet: ' + err.message);
         this.logs.appendLog('Error while creating droplet: ' + JSON.stringify(err));
       }).finally(() => {
         this.isBooting = false;
       });
+
       this.events.subscribe('droplet:booted', (data) => {
         console.log('droplet:booted data: ', data);
         this.logs.appendLog('Droplet booted.');

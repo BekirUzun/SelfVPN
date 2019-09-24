@@ -12,7 +12,7 @@
     </nb-select>
   </div>
   <div class="col-6">
-    <button nbButton fullWidth [disabled]="isBooting" [nbSpinner]="isBooting" (click)="dropletAction()" status="{{ isDropletRunning() ? 'danger' : 'primary' }}">
+    <button nbButton fullWidth [disabled]="isBooting" [nbSpinner]="isBooting" (click)="dropletClickHandler()" status="{{ isDropletRunning() ? 'danger' : 'primary' }}">
       {{ isDropletRunning() ? 'Destroy Server' : 'Create Server' }}
     </button>
   </div>
